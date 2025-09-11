@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
+import CartIcon from './CartIcon';
 
 export default function Navbar() {
   const { user, profile, loading, signOut, isAuthenticated } = useAuth();
@@ -51,6 +52,7 @@ export default function Navbar() {
           <div style={{ color: "#666" }}>Loading...</div>
         ) : isAuthenticated ? (
           <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            <CartIcon />
             {profile?.full_name && (
               <span style={{ 
                 color: "#333", 

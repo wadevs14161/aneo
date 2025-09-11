@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Course } from '@/lib/database';
+import AddToCartButton from './AddToCartButton';
 
 interface CourseCardProps {
   course: Course;
@@ -75,7 +76,8 @@ export default function CourseCard({ course, onSeeMore }: CourseCardProps) {
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
-        alignItems: 'center' 
+        alignItems: 'center',
+        marginBottom: '8px'
       }}>
         <span style={{ 
           fontSize: '16px', 
@@ -88,17 +90,27 @@ export default function CourseCard({ course, onSeeMore }: CourseCardProps) {
         <button
           onClick={handleSeeMore}
           style={{
-            backgroundColor: '#007bff',
+            backgroundColor: '#28a745',
             color: 'white',
             border: 'none',
-            padding: '8px 16px',
+            padding: '6px 12px',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '12px'
           }}
         >
-          See more
+          Preview
         </button>
+      </div>
+      
+      {/* Add to Cart Button */}
+      <div style={{ width: '100%' }}>
+        <AddToCartButton 
+          courseId={course.id}
+          courseName={course.title}
+          variant="primary"
+          className="w-full text-sm py-2 px-4"
+        />
       </div>
     </div>
   );

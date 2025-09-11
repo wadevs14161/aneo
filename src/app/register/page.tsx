@@ -156,7 +156,9 @@ function RegisterForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>
@@ -177,7 +179,9 @@ function RegisterForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>
@@ -197,7 +201,9 @@ function RegisterForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>
@@ -216,7 +222,9 @@ function RegisterForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>
@@ -237,7 +245,9 @@ function RegisterForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>
@@ -258,7 +268,9 @@ function RegisterForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>

@@ -64,7 +64,9 @@ function LoginForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>
@@ -84,7 +86,9 @@ function LoginForm() {
               padding: "12px", 
               border: "1px solid #ddd", 
               borderRadius: "6px",
-              fontSize: "14px"
+              fontSize: "14px",
+              color: "#333",
+              backgroundColor: "#fff"
             }}
           />
         </div>
