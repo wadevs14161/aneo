@@ -14,7 +14,6 @@ export default function CoursePage() {
 
   useEffect(() => {
     if (!courseId) return;
-    
     loadCourse();
   }, [courseId]);
 
@@ -72,6 +71,10 @@ export default function CoursePage() {
       </div>
     );
   }
+
+  // Debug: Log course data
+  console.log('🎬 Course data:', course);
+  console.log('🔗 Video URL:', course.video_url);
 
   return (
     <div className="py-5 bg-gray-50 min-h-screen">

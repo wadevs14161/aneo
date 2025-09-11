@@ -215,22 +215,75 @@ export async function grantCourseAccess(
 
 export async function hasAccess(userId: string, courseId: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
+    console.log('🔍 Checking access for user:', userId, 'course:', courseId);
+    
+    // First, try to get course access directly
+    const { data: accessData, error: accessError } = await supabase
       .from('course_access')
       .select('*')
       .eq('user_id', userId)
       .eq('course_id', courseId)
       .single();
 
-    if (error || !data) return false;
-
-    // Check if access has expired
-    if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      return false;
+    // If we got data without error, check expiration
+    if (!accessError && accessData) {
+      console.log('✅ Direct access found:', accessData);
+      
+      // Check if access has expired
+      if (accessData.expires_at && new Date(accessData.expires_at) < new Date()) {
+        console.log('❌ Access expired');
+        return false;
+      }
+      
+      return true;
     }
 
-    return true;
+    // If no direct access found (PGRST116 = not found), check purchases as fallback
+    if (accessError?.code === 'PGRST116') {
+      console.log('ℹ️ No direct access, checking purchases...');
+      
+      const { data: purchaseData, error: purchaseError } = await supabase
+        .from('purchases')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('course_id', courseId)
+        .eq('status', 'completed')
+        .single();
+
+      if (!purchaseError && purchaseData) {
+        console.log('✅ Valid purchase found, granting access');
+        
+        // Auto-create course access from purchase (optional)
+        try {
+          const { error: insertError } = await supabase
+            .from('course_access')
+            .insert({
+              user_id: userId,
+              course_id: courseId,
+              access_type: 'purchased'
+            });
+          
+          if (insertError) {
+            console.warn('⚠️ Could not create access record:', insertError);
+          }
+        } catch (insertErr) {
+          console.warn('⚠️ Access record creation failed:', insertErr);
+        }
+        
+        return true;
+      }
+    }
+
+    // Log other errors for debugging
+    if (accessError && accessError.code !== 'PGRST116') {
+      console.error('❌ Access check error:', accessError);
+    }
+
+    console.log('❌ No access found');
+    return false;
+    
   } catch (error) {
+    console.error('❌ Unexpected error checking access:', error);
     return false;
   }
 }

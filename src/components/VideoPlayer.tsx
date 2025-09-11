@@ -1,66 +1,65 @@
-import React from 'react';
+'use client'
 
 interface VideoPlayerProps {
   videoUrl: string;
   title: string;
-  description: string;
-  instructor: string;
+  description?: string;
+  instructor?: string;
+  className?: string;
 }
 
-export default function VideoPlayer({ videoUrl, title, description, instructor }: VideoPlayerProps) {
-  return (
-    <div style={{
-      maxWidth: '900px',
-      margin: '0 auto',
-      padding: '20px',
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-    }}>
-      <h1 style={{
-        fontSize: '28px',
-        fontWeight: 'bold',
-        marginBottom: '10px',
-        color: '#333'
-      }}>
-        {title}
-      </h1>
-      
-      <div style={{
-        fontSize: '14px',
-        color: '#666',
-        marginBottom: '20px'
-      }}>
-        Instructor: {instructor}
-      </div>
+export default function VideoPlayer({ 
+  videoUrl, 
+  title, 
+  description, 
+  instructor,
+  className = "" 
+}: VideoPlayerProps) {
+  // Debug: Log video props
+  console.log('🎥 VideoPlayer props:', { videoUrl, title, description, instructor });
 
-      <div style={{
-        marginBottom: '20px',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        backgroundColor: '#000'
-      }}>
-        <video
+  if (!videoUrl) {
+    console.log('❌ No video URL provided');
+    return (
+      <div className="bg-gray-100 aspect-video rounded-lg flex items-center justify-center">
+        <p className="text-gray-500">Video not available</p>
+      </div>
+    );
+  }
+
+  console.log('✅ Video URL available:', videoUrl);
+
+  return (
+    <div className={`max-w-4xl mx-auto p-6 ${className}`}>
+      {/* Video Player */}
+      <div className="mb-8">
+        <video 
+          className="w-full aspect-video rounded-lg shadow-lg"
           controls
-          width="100%"
-          style={{
-            width: '100%',
-            height: 'auto',
-            maxHeight: '500px'
-          }}
+          preload="metadata"
+          // poster="/video-placeholder.jpg" // Removed: Add poster image when available
         >
           <source src={videoUrl} type="video/mp4" />
-          Your browser does not support the video tag.
+          <p className="text-red-500">
+            Your browser does not support the video tag. 
+            <a href={videoUrl} className="underline ml-1">Download the video</a>
+          </p>
         </video>
       </div>
 
-      <div style={{
-        fontSize: '16px',
-        lineHeight: '1.6',
-        color: '#444'
-      }}>
-        <h3 style={{ marginBottom: '10px' }}>Course Description</h3>
-        <p>{description}</p>
+      {/* Course Information */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-3xl font-bold mb-4">{title}</h1>
+        
+        {description && (
+          <p className="text-gray-600 mb-6 leading-relaxed">{description}</p>
+        )}
+        
+        {instructor && (
+          <div className="flex items-center gap-4 text-sm text-gray-500 border-t pt-4">
+            <span className="font-medium">Instructor: {instructor}</span>
+          </div>
+        )}
       </div>
     </div>
   );
