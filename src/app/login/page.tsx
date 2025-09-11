@@ -40,8 +40,13 @@ export default function LoginPage() {
           required
           style={{ width: "100%", marginBottom: 12, padding: 8 }}
         />
-        <button type="submit" style={{ width: "100%", padding: 10 }}>Sign In</button>
+          <button type="submit" style={{ width: "100%", padding: 10, cursor: "pointer" }}>Sign In</button>
       </form>
+        <div style={{ marginTop: 16, textAlign: "center" }}>
+          <a href="/register">
+            <button style={{ width: "100%", padding: 10, cursor: "pointer" }}>Not a member? Register</button>
+          </a>
+        </div>
       {error && <div style={{ color: "red", marginTop: 12 }}>{error}</div>}
       {success && <div style={{ color: "green", marginTop: 12 }}>{success}</div>}
     </div>

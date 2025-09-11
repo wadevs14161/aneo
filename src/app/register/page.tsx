@@ -40,7 +40,7 @@ export default function RegisterPage() {
           required
           style={{ width: "100%", marginBottom: 12, padding: 8 }}
         />
-        <button type="submit" style={{ width: "100%", padding: 10 }}>Register</button>
+        <button type="submit" style={{ width: "100%", padding: 10, cursor: "pointer" }}>Register</button>
       </form>
       {error && <div style={{ color: "red", marginTop: 12 }}>{error}</div>}
       {success && <div style={{ color: "green", marginTop: 12 }}>{success}</div>}
