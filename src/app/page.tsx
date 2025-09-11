@@ -50,7 +50,7 @@ export default function Home() {
   };
 
   return (
-    <main style={{ minHeight: "100vh", position: "relative" }}>
+    <main style={{ minHeight: "100vh", position: "relative", backgroundColor: "white" }}>
       <div style={{ padding: '20px' }}>
 
         <CourseGrid courses={sampleCourses} onSeeMore={handleSeeMore} />

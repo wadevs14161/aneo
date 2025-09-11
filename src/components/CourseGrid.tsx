@@ -42,7 +42,7 @@ export default function CourseGrid({ courses, onSeeMore }: CourseGridProps) {
   }, [courses, selectedCategory, sortBy]);
   return (
     <div style={{
-      backgroundColor: '#f8f9fa',
+      backgroundColor: '#eff1f2ff',
       borderRadius: '8px',
       width: '70%',
       minHeight: '200px',

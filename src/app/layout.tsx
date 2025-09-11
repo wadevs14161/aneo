@@ -22,7 +22,7 @@ import Image from "next/image";
 
 function Navbar() {
   return (
-    <nav style={{ width: "100%", padding: "16px 0", borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <nav style={{ width: "100%", padding: "16px 0", backgroundColor: "#f8f9fa",borderBottom: "1px solid #eee", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <div style={{ display: "flex", alignItems: "center" }}>
         <Link href="/">
           <Image src="/Aneo-logo.png" alt="Aneo Logo" width={120} height={40} style={{ cursor: "pointer" }} />
@@ -30,10 +30,10 @@ function Navbar() {
       </div>
       <div style={{ display: "flex", alignItems: "center" }}>
         <Link href="/login">
-          <button style={{ marginRight: 12, cursor: "pointer" }}>Login</button>
+          <button style={{ marginRight: 12, cursor: "pointer", color: "#333" }}>Login</button>
         </Link>
         <Link href="/register">
-          <button style={{ cursor: "pointer" }}>Register</button>
+          <button style={{ cursor: "pointer", color: "#333" }}>Register</button>
         </Link>
       </div>
     </nav>
