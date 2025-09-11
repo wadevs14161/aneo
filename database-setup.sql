@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Enable Row Level Security
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
+
 -- Profiles policies
 CREATE POLICY "Users can view own profile" ON profiles
   FOR SELECT USING (auth.uid() = id);
@@ -25,6 +30,10 @@ CREATE POLICY "Users can update own profile" ON profiles
 
 CREATE POLICY "Users can insert own profile" ON profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- Allow service role to bypass RLS for triggers and functions
+CREATE POLICY "Service role can manage profiles" ON profiles
+  FOR ALL USING (auth.role() = 'service_role');
 
 -- 2. Create courses table
 CREATE TABLE IF NOT EXISTS courses (
@@ -94,14 +103,57 @@ CREATE POLICY "Users can view own access" ON course_access
 -- 5. Function to handle new user registration
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
+DECLARE
+  user_phone TEXT;
+  user_dob DATE;
 BEGIN
-  INSERT INTO public.profiles (id, email, full_name)
+  -- Safely extract phone (handle null values)
+  user_phone := CASE 
+    WHEN NEW.raw_user_meta_data->>'phone' = 'null' OR NEW.raw_user_meta_data->>'phone' = '' 
+    THEN NULL 
+    ELSE NEW.raw_user_meta_data->>'phone' 
+  END;
+  
+  -- Safely extract and convert date of birth
+  user_dob := CASE 
+    WHEN NEW.raw_user_meta_data->>'date_of_birth' IS NULL 
+      OR NEW.raw_user_meta_data->>'date_of_birth' = 'null' 
+      OR NEW.raw_user_meta_data->>'date_of_birth' = '' 
+    THEN NULL
+    ELSE 
+      -- Try to convert to date, fallback to NULL if invalid
+      CASE 
+        WHEN NEW.raw_user_meta_data->>'date_of_birth' ~ '^\d{4}-\d{2}-\d{2}$'
+        THEN (NEW.raw_user_meta_data->>'date_of_birth')::date
+        ELSE NULL
+      END
+  END;
+
+  INSERT INTO public.profiles (id, email, full_name, phone, date_of_birth)
   VALUES (
-    new.id, 
-    new.email, 
-    COALESCE(new.raw_user_meta_data->>'full_name', new.email)
+    NEW.id, 
+    NEW.email, 
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+    user_phone,
+    user_dob
   );
-  RETURN new;
+  
+  RETURN NEW;
+EXCEPTION
+  WHEN unique_violation THEN
+    -- Profile already exists, update it with new data if provided
+    UPDATE public.profiles 
+    SET 
+      full_name = COALESCE(NEW.raw_user_meta_data->>'full_name', full_name),
+      phone = COALESCE(user_phone, phone),
+      date_of_birth = COALESCE(user_dob, date_of_birth),
+      updated_at = NOW()
+    WHERE id = NEW.id;
+    RETURN NEW;
+  WHEN OTHERS THEN
+    -- Log the error but don't fail the user creation
+    RAISE WARNING 'Failed to create profile for user %: %', NEW.id, SQLERRM;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

@@ -59,7 +59,15 @@ export async function getProfile(userId: string): Promise<Profile | null> {
       .eq('id', userId)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      // Handle specific error cases
+      if (error.code === 'PGRST116') {
+        // No rows returned - user profile doesn't exist yet
+        console.log('Profile not found for user:', userId);
+        return null;
+      }
+      throw error;
+    }
     return data;
   } catch (error) {
     console.error('Error fetching profile:', error);
