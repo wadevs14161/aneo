@@ -1,15 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import CourseCard from './CourseCard';
-
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  thumbnail: string;
-  price: number;
-  instructor: string;
-}
+import { Course } from '@/lib/database';
 
 interface CourseGridProps {
   courses: Course[];

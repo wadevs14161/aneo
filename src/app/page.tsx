@@ -1,52 +1,63 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CourseGrid from '@/components/CourseGrid';
-
-// Sample course data - replace with real data from your database
-const sampleCourses = [
-  {
-    id: '1',
-    title: 'Karaoke for Beginners',
-    description: 'Learn the fundamentals of Karaoke including song selection, microphone techniques, and stage presence. Perfect for beginners who want to start singing confidently in front of an audience.',
-    category: 'Party',
-    thumbnail: '/courses/thumbnail_ktv.png', // Replace with actual course thumbnails
-    price: 99.99,
-    instructor: 'John Smith'
-  },
-  {
-    id: '2',
-    title: 'Tennis Basics',
-    description: 'Learn the fundamentals of Tennis including rules, techniques, and strategies. Perfect for beginners who want to start playing confidently.',
-    category: 'Sport',
-    thumbnail: '/courses/thumbnail_tennis_women.png',
-    price: 149.99,
-    instructor: 'Sarah Johnson'
-  },
-  {
-    id: '3',
-    title: 'Tennis Advanced Techniques',
-    description: 'Take your Tennis skills to the next level with advanced techniques and strategies.',
-    category: 'Sport',
-    thumbnail: '/courses/thumbnail_tennis_men.png',
-    price: 199.99,
-    instructor: 'Mike Chen'
-  },
-  {
-    id: '4',
-    title: 'Dog Training 101',
-    description: 'Learn the basics of dog training including obedience, commands, and behavior modification. Perfect for new dog owners.',
-    category: 'Life',
-    thumbnail: '/courses/thumbnail_dog.png',
-    price: 99.99,
-    instructor: 'Emily Davis'
-  }
-];
+import { getAllCourses, Course } from '@/lib/database';
 
 export default function Home() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  const loadCourses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const coursesData = await getAllCourses();
+      setCourses(coursesData);
+    } catch (err) {
+      console.error('Error loading courses:', err);
+      setError('Failed to load courses');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <div className="text-center p-10">
+          <h2 className="text-2xl font-bold mb-4 text-red-600">Error Loading Courses</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={loadCourses}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   return (
-    <main style={{ minHeight: "100vh", position: "relative", backgroundColor: "#f8f9fa" }}>
-      <div style={{ padding: '20px' }}>
-        <CourseGrid courses={sampleCourses} />
+    <main className="min-h-screen bg-gray-50">
+      <div className="p-5">
+        <CourseGrid courses={courses} />
       </div>
     </main>
   );

@@ -1,97 +1,88 @@
 'use client';
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import VideoPlayer from '@/components/VideoPlayer';
-
-// Sample courses data (you can move this to a separate file later)
-const sampleCourses = [
-  {
-    id: '1',
-    title: 'Karaoke for Beginners',
-    description: 'Learn the fundamentals of Karaoke including song selection, microphone techniques, and stage presence. Perfect for beginners who want to start singing confidently in front of an audience.',
-    category: 'Party',
-    thumbnail: '/courses/thumbnail_ktv.png',
-    price: 99.99,
-    instructor: 'John Smith',
-    videoUrl: 'https://d36ld0px64xgzw.cloudfront.net/ktv.mp4'
-  },
-  {
-    id: '2',
-    title: 'Tennis Basics',
-    description: 'Learn the fundamentals of Tennis including rules, techniques, and strategies. Perfect for beginners who want to start playing confidently.',
-    category: 'Sport',
-    thumbnail: '/courses/thumbnail_tennis_women.png',
-    price: 149.99,
-    instructor: 'Sarah Johnson',
-    videoUrl: 'https://d36ld0px64xgzw.cloudfront.net/tennis-women.mp4'
-  },
-  {
-    id: '3',
-    title: 'Tennis Advanced Techniques',
-    description: 'Take your Tennis skills to the next level with advanced techniques and strategies.',
-    category: 'Sport',
-    thumbnail: '/courses/thumbnail_tennis_men.png',
-    price: 199.99,
-    instructor: 'Mike Chen',
-    videoUrl: 'https://d36ld0px64xgzw.cloudfront.net/tennis-men.mp4'
-  },
-  {
-    id: '4',
-    title: 'Dog Training 101',
-    description: 'Learn the basics of dog training including obedience, commands, and behavior modification. Perfect for new dog owners.',
-    category: 'Life',
-    thumbnail: '/courses/thumbnail_dog.png',
-    price: 99.99,
-    instructor: 'Emily Davis',
-    videoUrl: 'https://d36ld0px64xgzw.cloudfront.net/dog.mp4'
-  }
-];
+import ProtectedCourse from '@/components/ProtectedCourse';
+import { getCourse, type Course } from '@/lib/database';
 
 export default function CoursePage() {
   const params = useParams();
   const courseId = params?.id as string;
+  const [course, setCourse] = useState<Course | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!courseId) return;
+    
+    loadCourse();
+  }, [courseId]);
+
+  const loadCourse = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const courseData = await getCourse(courseId);
+      
+      if (!courseData) {
+        setError('Course not found');
+        return;
+      }
+      
+      setCourse(courseData);
+    } catch (err) {
+      console.error('Error loading course:', err);
+      setError('Failed to load course');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   if (!courseId) {
     return (
-      <div style={{ 
-        textAlign: 'center', 
-        padding: '40px',
-        backgroundColor: '#f8f9fa',
-        minHeight: '50vh'
-      }}>
-        <h2>Invalid course</h2>
-        <p>No course ID provided.</p>
+      <div className="text-center p-10">
+        <h2 className="text-2xl font-bold mb-4">Invalid course</h2>
+        <p className="text-gray-600">No course ID provided.</p>
       </div>
     );
   }
-  
-  const course = sampleCourses.find(c => c.id === courseId);
-  
-  if (!course) {
+
+  if (loading) {
     return (
-      <div style={{ 
-        textAlign: 'center', 
-        padding: '40px',
-        backgroundColor: '#f8f9fa',
-        minHeight: '50vh'
-      }}>
-        <h2>Course not found</h2>
-        <p>The course you're looking for doesn't exist.</p>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error || !course) {
+    return (
+      <div className="text-center p-10 bg-gray-50 min-h-[50vh]">
+        <h2 className="text-2xl font-bold mb-4">Course not found</h2>
+        <p className="text-gray-600">
+          {error || "The course you're looking for doesn't exist."}
+        </p>
+        <button
+          onClick={() => window.history.back()}
+          className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Go Back
+        </button>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      padding: '20px 0',
-      backgroundColor: '#f8f9fa',
-      minHeight: '100vh'
-    }}>
-      <VideoPlayer
-        videoUrl={course.videoUrl}
-        title={course.title}
-        description={course.description}
-        instructor={course.instructor}
-      />
+    <div className="py-5 bg-gray-50 min-h-screen">
+      <ProtectedCourse courseId={courseId}>
+        <VideoPlayer
+          videoUrl={course.video_url}
+          title={course.title}
+          description={course.description}
+          instructor={course.instructor_name}
+        />
+      </ProtectedCourse>
     </div>
   );
 }

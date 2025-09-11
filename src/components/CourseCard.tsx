@@ -1,16 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  thumbnail: string;
-  price: number;
-  instructor: string;
-}
+import { Course } from '@/lib/database';
 
 interface CourseCardProps {
   course: Course;
@@ -39,7 +30,7 @@ export default function CourseCard({ course, onSeeMore }: CourseCardProps) {
     }}>
       <div style={{ marginBottom: '6px' }}>
         <Image
-          src={course.thumbnail}
+          src={course.thumbnail_url}
           alt={course.title}
           width={226}
           height={120}
@@ -78,7 +69,7 @@ export default function CourseCard({ course, onSeeMore }: CourseCardProps) {
         color: '#888', 
         marginBottom: '6px' 
       }}>
-        Instructor: {course.instructor}
+        Instructor: {course.instructor_name}
       </div>
       
       <div style={{ 
