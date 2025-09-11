@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { createUserProfile } from "@/lib/profileUtils";
@@ -13,7 +13,7 @@ interface RegisterFormData {
   dateOfBirth: string;
 }
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [formData, setFormData] = useState<RegisterFormData>({
     email: "",
     password: "",
@@ -328,5 +328,33 @@ export default function RegisterPage() {
         </div>
       )}
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function RegisterLoading() {
+  return (
+    <div style={{ 
+      maxWidth: 500, 
+      margin: "40px auto", 
+      padding: 32, 
+      border: "1px solid #eee", 
+      borderRadius: 12,
+      backgroundColor: "white",
+      boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+      textAlign: "center"
+    }}>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+      <p style={{ marginTop: 16, color: "#666" }}>Loading...</p>
+    </div>
+  );
+}
+
+// Main export with Suspense boundary
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<RegisterLoading />}>
+      <RegisterForm />
+    </Suspense>
   );
 }

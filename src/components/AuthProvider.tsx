@@ -1,7 +1,7 @@
 // Authentication provider for handling auth state changes and redirects
 'use client'
 import { useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {

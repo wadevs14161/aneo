@@ -57,7 +57,7 @@ export default function Navbar() {
                 fontSize: "14px",
                 fontWeight: "500"
               }}>
-                Welcome, {profile.full_name}
+                Hi, {profile.full_name}
               </span>
             )}
             <button
