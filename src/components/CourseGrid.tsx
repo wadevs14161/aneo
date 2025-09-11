@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import CourseCard from './CourseCard';
+import EnhancedCourseCard from './EnhancedCourseCard';
 import { Course } from '@/lib/database';
 
 interface CourseGridProps {
@@ -102,7 +102,7 @@ export default function CourseGrid({ courses, onSeeMore }: CourseGridProps) {
         gap: '20px 30px'
       }}>
         {filteredAndSortedCourses.map((course) => (
-        <CourseCard
+        <EnhancedCourseCard
           key={course.id}
           course={course}
           onSeeMore={onSeeMore}

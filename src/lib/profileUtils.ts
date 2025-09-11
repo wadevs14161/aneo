@@ -9,6 +9,21 @@ export interface CreateProfileData {
   date_of_birth?: string;
 }
 
+// Cache to prevent repeated profile existence checks
+const profileExistsCache = new Map<string, boolean>();
+const profileCheckPromises = new Map<string, Promise<boolean>>();
+
+// Function to clear cache (useful for testing or when user changes)
+export function clearProfileCache(userId?: string) {
+  if (userId) {
+    profileExistsCache.delete(userId);
+    profileCheckPromises.delete(userId);
+  } else {
+    profileExistsCache.clear();
+    profileCheckPromises.clear();
+  }
+}
+
 export async function createUserProfile(profileData: CreateProfileData): Promise<boolean> {
   try {
     console.log('🔄 Checking/Creating profile for user:', profileData.id);
@@ -102,6 +117,40 @@ export async function createUserProfile(profileData: CreateProfileData): Promise
 
 export async function ensureProfileExists(userId: string): Promise<boolean> {
   try {
+    // Check cache first
+    if (profileExistsCache.has(userId)) {
+      const exists = profileExistsCache.get(userId)!;
+      if (exists) {
+        console.log('Profile exists (cached):', userId);
+        return true;
+      }
+    }
+
+    // Check if there's already a pending check for this user
+    if (profileCheckPromises.has(userId)) {
+      console.log('Profile check already in progress for user:', userId);
+      return await profileCheckPromises.get(userId)!;
+    }
+
+    // Create a new promise for this profile check
+    const checkPromise = performProfileCheck(userId);
+    profileCheckPromises.set(userId, checkPromise);
+
+    try {
+      const result = await checkPromise;
+      profileExistsCache.set(userId, result);
+      return result;
+    } finally {
+      profileCheckPromises.delete(userId);
+    }
+  } catch (error) {
+    console.error('Error ensuring profile exists:', error);
+    return false;
+  }
+}
+
+async function performProfileCheck(userId: string): Promise<boolean> {
+  try {
     console.log('Checking if profile exists for user:', userId);
     
     // Check if profile already exists
@@ -122,7 +171,7 @@ export async function ensureProfileExists(userId: string): Promise<boolean> {
     }
 
     console.log('Profile does not exist, creating...');
-    
+      
     // Get user data from auth
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -143,7 +192,7 @@ export async function ensureProfileExists(userId: string): Promise<boolean> {
     console.log('Creating profile with data:', profileData);
     return await createUserProfile(profileData);
   } catch (error) {
-    console.error('Error ensuring profile exists:', error);
+    console.error('Error in performProfileCheck:', error);
     return false;
   }
 }

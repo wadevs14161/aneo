@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 import Navbar from "@/components/Navbar";
 import AuthProvider from "@/components/AuthProvider";
 import { CartProvider } from "@/contexts/CartContext";
-import AuthDebug from "@/components/AuthDebug";
+import { CourseAccessProvider } from "@/contexts/CourseAccessContext";
 // import DatabaseDebug from "@/components/DatabaseDebug"; // 🧪 Debug panel - uncomment when needed
 
 function Footer() {
@@ -44,11 +44,12 @@ export default function RootLayout({
       >
         <AuthProvider>
           <CartProvider>
-            <Navbar />
-            <div style={{ flex: 1, width: "100%" }}>{children}</div>
-            <Footer />
-            <AuthDebug />
-            {/* <DatabaseDebug /> */} {/* 🧪 Debug panel - uncomment when needed */}
+            <CourseAccessProvider>
+              <Navbar />
+              <div style={{ flex: 1, width: "100%" }}>{children}</div>
+              <Footer />
+              {/* <DatabaseDebug /> */} {/* 🧪 Debug panel - uncomment when needed */}
+            </CourseAccessProvider>
           </CartProvider>
         </AuthProvider>
       </body>

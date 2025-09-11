@@ -26,9 +26,14 @@ export function useAuth() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change event:', event, session?.user?.email);
+        
         if (session?.user) {
-          // User logged in - ensure profile exists
-          await ensureProfileExists(session.user.id);
+          // Only ensure profile exists for new logins, not for token refresh
+          if (event === 'SIGNED_IN') {
+            console.log('User signed in, ensuring profile exists');
+            await ensureProfileExists(session.user.id);
+          }
           const profile = await getCurrentUserProfile();
           setAuthState({
             user: session.user,
@@ -37,6 +42,7 @@ export function useAuth() {
           });
         } else {
           // User logged out
+          console.log('User logged out');
           setAuthState({
             user: null,
             profile: null,
