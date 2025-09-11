@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface Course {
   id: string;
@@ -13,10 +14,20 @@ interface Course {
 
 interface CourseCardProps {
   course: Course;
-  onSeeMore: (courseId: string) => void;
+  onSeeMore?: (courseId: string) => void;
 }
 
 export default function CourseCard({ course, onSeeMore }: CourseCardProps) {
+  const router = useRouter();
+
+  const handleSeeMore = () => {
+    if (onSeeMore) {
+      onSeeMore(course.id);
+    } else {
+      // Navigate to course video page
+      router.push(`/course/${course.id}`);
+    }
+  };
   return (
     <div style={{
       border: '1px solid #e0e0e0',
@@ -84,7 +95,7 @@ export default function CourseCard({ course, onSeeMore }: CourseCardProps) {
         </span>
         
         <button
-          onClick={() => onSeeMore(course.id)}
+          onClick={handleSeeMore}
           style={{
             backgroundColor: '#007bff',
             color: 'white',

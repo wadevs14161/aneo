@@ -43,17 +43,10 @@ const sampleCourses = [
 ];
 
 export default function Home() {
-  const handleSeeMore = (courseId: string) => {
-    console.log('See more clicked for course:', courseId);
-    // Navigate to course detail page or show more info
-    // You can use Next.js router here: router.push(`/courses/${courseId}`)
-  };
-
   return (
-    <main style={{ minHeight: "100vh", position: "relative", backgroundColor: "white" }}>
+    <main style={{ minHeight: "100vh", position: "relative", backgroundColor: "#f8f9fa" }}>
       <div style={{ padding: '20px' }}>
-
-        <CourseGrid courses={sampleCourses} onSeeMore={handleSeeMore} />
+        <CourseGrid courses={sampleCourses} />
       </div>
     </main>
   );

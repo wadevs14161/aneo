@@ -13,7 +13,7 @@ interface Course {
 
 interface CourseGridProps {
   courses: Course[];
-  onSeeMore: (courseId: string) => void;
+  onSeeMore?: (courseId: string) => void;
 }
 
 export default function CourseGrid({ courses, onSeeMore }: CourseGridProps) {
