@@ -28,13 +28,26 @@ function Navbar() {
           <Image src="/Aneo-logo.png" alt="Aneo Logo" width={120} height={40} style={{ cursor: "pointer" }} />
         </Link>
       </div>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <Link href="/login">
-          <button style={{ marginRight: 12, cursor: "pointer", color: "#333" }}>Login</button>
+      
+      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+        <Link href="/about" style={{ 
+          textDecoration: "none", 
+          color: "#333", 
+          fontSize: "16px",
+          fontWeight: "500",
+          cursor: "pointer"
+        }}>
+          About
         </Link>
-        <Link href="/register">
-          <button style={{ cursor: "pointer", color: "#333" }}>Register</button>
-        </Link>
+        
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Link href="/login">
+            <button style={{ marginRight: 12, cursor: "pointer", color: "#333" }}>Login</button>
+          </Link>
+          <Link href="/register">
+            <button style={{ cursor: "pointer", color: "#333" }}>Sign Up</button>
+          </Link>
+        </div>
       </div>
     </nav>
   );
