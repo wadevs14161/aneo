@@ -1,5 +1,6 @@
-// Authentication-aware navbar component
+// Mobile-responsive authentication-aware navbar component
 'use client'
+import { useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from '@/hooks/useAuth';
@@ -9,122 +10,164 @@ import CartIcon from './CartIcon';
 export default function Navbar() {
   const { user, profile, loading, signOut, isAuthenticated } = useAuth();
   const router = useRouter();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     router.push('/');
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    <nav style={{ 
-      width: "100%", 
-      padding: "16px 20px", 
-      backgroundColor: "#f8f9fa",
-      borderBottom: "1px solid #eee", 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "space-between" 
-    }}>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <Link href="/">
-          <Image 
-            src="/Aneo-logo.png" 
-            alt="Aneo Logo" 
-            width={120} 
-            height={40} 
-            style={{ cursor: "pointer" }} 
-          />
-        </Link>
-      </div>
-      
-      <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-        <Link href="/about" style={{ 
-          textDecoration: "none", 
-          color: "#333", 
-          fontSize: "16px",
-          fontWeight: "500",
-          cursor: "pointer"
-        }}>
-          About
-        </Link>
-        
-        {isAuthenticated && (
-          <Link href="/profile/purchases" style={{ 
-            textDecoration: "none", 
-            color: "#333", 
-            fontSize: "16px",
-            fontWeight: "500",
-            cursor: "pointer"
-          }}>
-            My Courses
-          </Link>
-        )}
-        
-        {loading ? (
-          <div style={{ color: "#666" }}>Loading...</div>
-        ) : isAuthenticated ? (
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            <CartIcon />
-            {profile?.full_name && (
-              <span style={{ 
-                color: "#333", 
-                fontSize: "14px",
-                fontWeight: "500"
-              }}>
-                Hi, {profile.full_name}
-              </span>
-            )}
-            <button
-              onClick={handleSignOut}
-              style={{ 
-                padding: "8px 16px",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
-                transition: "background-color 0.2s"
-              }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#c82333"}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#dc3545"}
+    <nav className="w-full bg-gray-50 border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="flex-shrink-0">
+              <Image 
+                src="/Aneo-logo.png" 
+                alt="Aneo Logo" 
+                width={120} 
+                height={40} 
+                className="cursor-pointer" 
+              />
+            </Link>
+          </div>
+          
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link 
+              href="/about" 
+              className="text-gray-700 hover:text-blue-600 font-medium text-sm transition-colors duration-200"
             >
-              Logout
+              About
+            </Link>
+            
+            {isAuthenticated && (
+              <Link 
+                href="/profile/purchases" 
+                className="text-gray-700 hover:text-blue-600 font-medium text-sm transition-colors duration-200"
+              >
+                My Courses
+              </Link>
+            )}
+            
+            {loading ? (
+              <div className="text-gray-600 text-sm">Loading...</div>
+            ) : isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <CartIcon />
+                {profile?.full_name && (
+                  <span className="text-gray-700 text-sm font-medium hidden lg:block">
+                    Hi, {profile.full_name}
+                  </span>
+                )}
+                <button
+                  onClick={handleSignOut}
+                  className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link href="/login">
+                  <button className="px-3 py-2 text-blue-600 border border-blue-600 hover:bg-blue-50 text-sm font-medium rounded-md transition-colors duration-200">
+                    Login
+                  </button>
+                </Link>
+                <Link href="/register">
+                  <button className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                    Sign Up
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button
+              onClick={toggleMobileMenu}
+              className="p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors duration-200"
+              aria-label="Toggle mobile menu"
+            >
+              <svg 
+                className="w-6 h-6" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
             </button>
           </div>
-        ) : (
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <Link href="/login">
-              <button style={{ 
-                padding: "8px 16px",
-                backgroundColor: "transparent",
-                color: "#007bff",
-                border: "1px solid #007bff",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
-                transition: "all 0.2s"
-              }}>
-                Login
-              </button>
-            </Link>
-            <Link href="/register">
-              <button style={{ 
-                padding: "8px 16px",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "1px solid #007bff",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
-                transition: "background-color 0.2s"
-              }}>
-                Sign Up
-              </button>
-            </Link>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link 
+                href="/about" 
+                className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 font-medium text-base rounded-md transition-colors duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              
+              {isAuthenticated && (
+                <Link 
+                  href="/profile/purchases" 
+                  className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 font-medium text-base rounded-md transition-colors duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  My Courses
+                </Link>
+              )}
+              
+              {loading ? (
+                <div className="px-3 py-2 text-gray-600 text-base">Loading...</div>
+              ) : isAuthenticated ? (
+                <div className="px-3 py-2 space-y-2">
+                  {profile?.full_name && (
+                    <div className="text-gray-700 text-sm font-medium">
+                      Hi, {profile.full_name}
+                    </div>
+                  )}
+                  <div className="flex items-center space-x-2">
+                    <CartIcon />
+                    <button
+                      onClick={handleSignOut}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors duration-200"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-3 py-2 space-y-2">
+                  <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                    <button className="w-full px-4 py-2 my-2 text-blue-600 border border-blue-600 hover:bg-blue-50 text-sm font-medium rounded-md transition-colors duration-200">
+                      Login
+                    </button>
+                  </Link>
+                  <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
+                    <button className="w-full px-4 py-2 my-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                      Sign Up
+                    </button>
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

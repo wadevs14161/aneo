@@ -8,7 +8,7 @@ export default function ServiceFeatures() {
       title: 'Video Courses',
       description: 'Watch our comprehensive video lessons',
       icon: (
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="w-12 h-12 sm:w-16 sm:h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
           <polygon points="10,8 16,12 10,16"/>
         </svg>
@@ -19,7 +19,7 @@ export default function ServiceFeatures() {
       title: 'Online One-on-One',
       description: 'Real-time interaction with instructors',
       icon: (
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="w-12 h-12 sm:w-16 sm:h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -32,7 +32,7 @@ export default function ServiceFeatures() {
       title: 'Study Guidance',
       description: 'Get practical study abroad assistance',
       icon: (
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="w-12 h-12 sm:w-16 sm:h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
           <path d="M6 12v5c3 3 9 3 12 0v-5"/>
         </svg>
@@ -43,7 +43,7 @@ export default function ServiceFeatures() {
       title: 'Writing Support',
       description: 'Improve your English writing skills',
       icon: (
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="w-12 h-12 sm:w-16 sm:h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14,2 14,8 20,8"/>
           <line x1="16" y1="13" x2="8" y2="13"/>
@@ -62,113 +62,44 @@ export default function ServiceFeatures() {
   ];
 
   return (
-    <div style={{
-      backgroundColor: '#eff1f2ff',
-      padding: '10px 20px',
-      margin: '0 auto',
-      width: '70%'
-    }}>
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        width: '100%'
-      }}>
+    <div className="bg-gray-100 p-4 sm:p-6 lg:p-8 mx-auto w-full max-w-6xl">
+      <div className="max-w-6xl mx-auto w-full">
         {/* Header Section */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '20px'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '20px'
-          }}>
-          </div>
-          <h3 style={{
-            fontSize: '36px',
-            fontWeight: 'bold',
-            color: '#2c3e50',
-            margin: '0 0 10px 0'
-          }}>
+        <div className="text-center mb-8 sm:mb-10">
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
             OUR SERVICES
           </h3>
         </div>
 
-        {/* Features Grid */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: '15px',
-          padding: '0 10px',
-          flexWrap: 'nowrap',
-          alignItems: 'stretch'
-        }}>
+        {/* Responsive Features Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-2 sm:px-4">
           {features.map((feature, index) => (
             <div
               key={feature.id}
+              className="rounded-2xl p-6 sm:p-8 lg:p-10 text-center text-white shadow-xl hover:shadow-2xl cursor-pointer relative overflow-hidden flex flex-col justify-center items-center min-h-[280px] sm:min-h-[320px] transform transition-all duration-300 hover:-translate-y-2"
               style={{
-                flex: '1',
-                minWidth: '0',
-                background: gradients[index],
-                borderRadius: '16px',
-                padding: '40px 20px',
-                textAlign: 'center',
-                color: 'white',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
+                background: gradients[index]
               }}
             >
               {/* Background Pattern */}
-              <div style={{
-                position: 'absolute',
-                top: '-50%',
-                right: '-50%',
-                width: '100%',
-                height: '100%',
-                background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-                borderRadius: '50%'
-              }} />
+              <div 
+                className="absolute -top-1/2 -right-1/2 w-full h-full rounded-full opacity-10"
+                style={{
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)'
+                }}
+              />
               
               {/* Icon */}
-              <div style={{
-                marginBottom: '25px',
-                position: 'relative',
-                zIndex: 1
-              }}>
+              <div className="mb-6 sm:mb-8 relative z-10 flex justify-center">
                 {feature.icon}
               </div>
               
               {/* Content */}
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <h4 style={{
-                  fontSize: '22px',
-                  fontWeight: 'bold',
-                  marginBottom: '15px',
-                  color: 'white'
-                }}>
+              <div className="relative z-10">
+                <h4 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-white">
                   {feature.title}
                 </h4>
-                <p style={{
-                  fontSize: '16px',
-                  lineHeight: '1.5',
-                  color: 'rgba(255,255,255,0.9)',
-                  margin: '0'
-                }}>
+                <p className="text-sm sm:text-base leading-relaxed text-white/90">
                   {feature.description}
                 </p>
               </div>

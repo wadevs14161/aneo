@@ -32,40 +32,22 @@ export default function CourseGrid({ courses, onSeeMore }: CourseGridProps) {
     return filtered;
   }, [courses, selectedCategory, sortBy]);
   return (
-    <div style={{
-      backgroundColor: '#eff1f2ff',
-      borderRadius: '8px',
-      width: '70%',
-      minHeight: '200px',
-      padding: '20px',
-      margin: '0 auto'
-    }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '40px', fontSize: '32px', color: '#333', fontWeight: 'bold' }}>
+    <div className="bg-gray-100 rounded-lg w-full max-w-6xl mx-auto min-h-[200px] p-4 sm:p-6 lg:p-8">
+      <h1 className="text-center mb-8 sm:mb-10 text-2xl sm:text-3xl lg:text-4xl text-gray-800 font-bold">
         COURSES
       </h1>
       
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        marginBottom: '30px',
-        gap: '20px'
-      }}>
-        <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
+      {/* Mobile-responsive filter controls */}
+      <div className="flex flex-col sm:flex-row justify-between mb-6 sm:mb-8 gap-4 sm:gap-6">
+        <div className="flex-1">
+          <label className="block mb-2 font-semibold text-gray-700 text-sm sm:text-base">
             Category:
           </label>
           <select 
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              fontSize: '14px',
-              backgroundColor: 'white',
-              color: '#333'
-            }}>
+            className="w-full px-3 py-2 rounded-md border border-gray-300 text-sm sm:text-base bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          >
             <option value="">All Categories</option>
             <option value="sport">Sport</option>
             <option value="life">Life</option>
@@ -73,22 +55,15 @@ export default function CourseGrid({ courses, onSeeMore }: CourseGridProps) {
           </select>
         </div>
         
-        <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
+        <div className="flex-1">
+          <label className="block mb-2 font-semibold text-gray-700 text-sm sm:text-base">
             Sort by:
           </label>
           <select 
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              fontSize: '14px',
-              backgroundColor: 'white',
-              color: '#333'
-            }}>
+            className="w-full px-3 py-2 rounded-md border border-gray-300 text-sm sm:text-base bg-white text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          >
             <option value="">Default</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
@@ -96,18 +71,15 @@ export default function CourseGrid({ courses, onSeeMore }: CourseGridProps) {
         </div>
       </div>
       
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-        gap: '20px 30px'
-      }}>
+      {/* Responsive course grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
         {filteredAndSortedCourses.map((course) => (
-        <EnhancedCourseCard
-          key={course.id}
-          course={course}
-          onSeeMore={onSeeMore}
-        />
-      ))}
+          <EnhancedCourseCard
+            key={course.id}
+            course={course}
+            onSeeMore={onSeeMore}
+          />
+        ))}
       </div>
     </div>
   );
