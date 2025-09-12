@@ -3,49 +3,96 @@ import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from 'next/navigation';
 import CourseGrid from '@/components/CourseGrid';
 import ServiceFeatures from '@/components/ServiceFeatures';
+import EmailVerificationNotice from '@/components/EmailVerificationNotice';
+import DevProfileButton from '@/components/DevProfileButton';
 import { getAllCourses, Course } from '@/lib/database';
+import { useAuth } from '@/hooks/useAuth';
+import { useCourseAccessContext } from '@/contexts/CourseAccessContext';
 
 function HomeContent() {
   const searchParams = useSearchParams();
   const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [coursesLoading, setCoursesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [forceShowContent, setForceShowContent] = useState(false);
+  
+  // Get auth and course access states
+  const { loading: authLoading } = useAuth();
+  const { loading: courseAccessLoading, refresh: refreshCourseAccess } = useCourseAccessContext();
+  
+  // Combined loading state - wait for all data to be ready
+  const loading = coursesLoading || authLoading || courseAccessLoading;
+  
+  // Debug loading states
+  console.log('HomePage Loading States:', {
+    coursesLoading,
+    authLoading,
+    courseAccessLoading,
+    combined: loading
+  });
 
   useEffect(() => {
     loadCourses();
     
     // Check for payment success
     if (searchParams?.get('payment') === 'success') {
+      console.log('Payment success detected, refreshing course access...');
       setShowSuccessMessage(true);
+      
+      // Refresh course access data to show "Access Course" buttons immediately
+      refreshCourseAccess();
+      
+      // Also refresh after a short delay to ensure auth is ready
+      setTimeout(() => {
+        console.log('Payment success: Secondary refresh after delay');
+        refreshCourseAccess();
+      }, 2000);
+      
       // Clear the URL parameter after 5 seconds
       setTimeout(() => {
         setShowSuccessMessage(false);
         window.history.replaceState({}, '', '/');
       }, 5000);
     }
-  }, [searchParams]);
+    
+    // Failsafe: If loading takes too long, force show content
+    const timeout = setTimeout(() => {
+      console.warn('Loading timeout reached, forcing content display');
+      setForceShowContent(true);
+    }, 10000); // 10 seconds timeout
+    
+    return () => clearTimeout(timeout);
+  }, [searchParams, refreshCourseAccess]);
 
   const loadCourses = async () => {
     try {
-      setLoading(true);
+      console.log('HomePage: Starting to load courses...');
+      setCoursesLoading(true);
       setError(null);
       
       const coursesData = await getAllCourses();
+      console.log('HomePage: Courses loaded successfully:', coursesData.length, 'courses');
       setCourses(coursesData);
     } catch (err) {
-      console.error('Error loading courses:', err);
+      console.error('HomePage: Error loading courses:', err);
       setError('Failed to load courses');
     } finally {
-      setLoading(false);
+      console.log('HomePage: Setting coursesLoading to false');
+      setCoursesLoading(false);
     }
   };
 
-  if (loading) {
+  if (loading && !forceShowContent) {
     return (
       <main className="min-h-screen bg-gray-50">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mb-4"></div>
+          <p className="text-gray-600 text-lg">
+            {coursesLoading ? 'Loading courses...' : 
+             authLoading ? 'Authenticating...' : 
+             courseAccessLoading ? 'Loading your course access...' : 'Loading...'}
+          </p>
         </div>
       </main>
     );
@@ -71,6 +118,12 @@ function HomeContent() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="p-5">
+        {/* Email Verification Notice */}
+        <EmailVerificationNotice />
+        
+        {/* Development Profile Creation (only shows in dev mode) */}
+        <DevProfileButton />
+        
         {/* Payment Success Message */}
         {showSuccessMessage && (
           <div className="max-w-4xl mx-auto mb-6">

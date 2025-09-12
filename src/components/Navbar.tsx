@@ -48,6 +48,18 @@ export default function Navbar() {
           About
         </Link>
         
+        {isAuthenticated && (
+          <Link href="/profile/purchases" style={{ 
+            textDecoration: "none", 
+            color: "#333", 
+            fontSize: "16px",
+            fontWeight: "500",
+            cursor: "pointer"
+          }}>
+            My Courses
+          </Link>
+        )}
+        
         {loading ? (
           <div style={{ color: "#666" }}>Loading...</div>
         ) : isAuthenticated ? (

@@ -16,12 +16,22 @@ interface AuthState {
 const AUTH_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
 let authCache: { data: AuthState; timestamp: number } | null = null;
 
+// Rate limiting for profile operations
+let lastProfileCheck = 0;
+const PROFILE_CHECK_COOLDOWN = 5000; // 5 seconds between profile checks
+
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     profile: null,
     loading: true
   });
+
+  // Clear any stale state on component mount
+  useEffect(() => {
+    // Reset rate limiting on new component mount
+    lastProfileCheck = 0;
+  }, []);
 
   useEffect(() => {
     // Get initial session
@@ -33,11 +43,27 @@ export function useAuth() {
         console.log('Auth state change event:', event, session?.user?.email);
         
         if (session?.user) {
-          // Only ensure profile exists for new logins, not for token refresh
-          if (event === 'SIGNED_IN') {
+          // Always ensure profile exists for signed-in users (no email verification required)
+          const now = Date.now();
+          if (event === 'SIGNED_IN' && (now - lastProfileCheck) > PROFILE_CHECK_COOLDOWN) {
             console.log('User signed in, ensuring profile exists');
+            lastProfileCheck = now;
+            // Clear any stale cache on sign in
+            authCache = null;
             await ensureProfileExists(session.user.id);
           }
+          
+          // Skip profile check if this is just a token refresh
+          if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed, skipping profile operations');
+            setAuthState(prev => ({
+              ...prev,
+              user: session.user,
+              loading: false
+            }));
+            return;
+          }
+          
           const profile = await getCurrentUserProfile();
           setAuthState({
             user: session.user,
@@ -73,8 +99,16 @@ export function useAuth() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
-        // Ensure profile exists for existing users
-        await ensureProfileExists(session.user.id);
+        // Always ensure profile exists for authenticated users (no email verification required)
+        const now = Date.now();
+        if ((now - lastProfileCheck) > PROFILE_CHECK_COOLDOWN) {
+          console.log('Ensuring profile exists for user:', session.user.id);
+          lastProfileCheck = now;
+          await ensureProfileExists(session.user.id);
+        } else {
+          console.log('Profile check rate limited, skipping');
+        }
+        
         const profile = await getCurrentUserProfile();
         
         const newAuthState = {

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import EmailVerificationNotice from '@/components/EmailVerificationNotice';
 
 export default function CartPage() {
   const { items, total, removeFromCart, loading, itemCount } = useCart();
@@ -94,6 +95,9 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto py-8 px-4">
+        {/* Email Verification Notice */}
+        <EmailVerificationNotice />
+        
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Your Cart</h1>

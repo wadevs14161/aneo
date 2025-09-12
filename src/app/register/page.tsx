@@ -107,18 +107,19 @@ function RegisterForm() {
         
         if (profileSuccess) {
           console.log('✅ Profile verification/creation completed');
+          
+          // Proceed with registration success and redirect to home page
+          setRegistered(true);
+          setSuccess("Account created successfully! Redirecting to home page...");
+          
+          // Redirect to home page after a short delay
+          setTimeout(() => {
+            router.push('/');
+          }, 2000);
         } else {
           console.warn('⚠️ Profile verification failed - but registration succeeded');
+          setError("Registration succeeded but profile creation failed. Please contact support.");
         }
-        
-        // Proceed with registration success
-        setRegistered(true);
-        setSuccess("Account created successfully! Please check your email to verify your account.");
-        
-        // Redirect after showing success message
-        setTimeout(() => {
-          router.push(redirectTo);
-        }, 2000);
       }
     } catch (error) {
       console.error('Registration error:', error);

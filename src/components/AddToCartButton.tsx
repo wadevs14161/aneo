@@ -28,6 +28,8 @@ export default function AddToCartButton({
       return;
     }
 
+
+
     if (isInCart(courseId)) {
       setMessage('Course already in cart');
       setTimeout(() => setMessage(''), 3000);
@@ -54,13 +56,7 @@ export default function AddToCartButton({
     }
   };
 
-  if (cartLoading) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-10 bg-gray-300 rounded w-32"></div>
-      </div>
-    );
-  }
+  // Remove the cart loading spinner since the page waits for all data before rendering
 
   const inCart = isInCart(courseId);
   const buttonDisabled = isLoading || inCart;

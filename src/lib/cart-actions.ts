@@ -33,6 +33,17 @@ export async function addToCart(courseId: string) {
       return { success: false, error: 'User not authenticated' };
     }
 
+    // Ensure profile exists before adding to cart
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      return { success: false, error: 'User profile not found. Please try logging out and back in.' };
+    }
+
     // Check if course exists
     const { data: course, error: courseError } = await supabase
       .from('courses')
@@ -91,6 +102,8 @@ export async function removeFromCart(courseId: string) {
     if (userError || !user) {
       return { success: false, error: 'User not authenticated' };
     }
+
+
 
     const { error } = await supabase
       .from('cart_items')

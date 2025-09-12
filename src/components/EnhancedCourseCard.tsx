@@ -5,7 +5,6 @@ import { Course } from '@/lib/database';
 import { useAuth } from '@/hooks/useAuth';
 import { useCourseAccessContext } from '@/contexts/CourseAccessContext';
 import AddToCartButton from './AddToCartButton';
-import CourseCardSkeleton from './CourseCardSkeleton';
 
 interface EnhancedCourseCardProps {
   course: Course;
@@ -17,10 +16,7 @@ export default function EnhancedCourseCard({ course, onSeeMore }: EnhancedCourse
   const { user } = useAuth();
   const { hasAccess, loading: courseAccessLoading } = useCourseAccessContext();
 
-  // Show skeleton during initial course access loading
-  if (courseAccessLoading && !course.id) {
-    return <CourseCardSkeleton />;
-  }
+  // Remove skeleton loading since the page waits for all data before rendering
 
   const handleSeeMore = () => {
     if (onSeeMore) {
@@ -114,16 +110,7 @@ export default function EnhancedCourseCard({ course, onSeeMore }: EnhancedCourse
       
       {/* Enhanced Add to Cart / Access Course Button */}
       <div style={{ width: '100%' }}>
-        {courseAccessLoading ? (
-          <div className="animate-pulse">
-            <div style={{
-              height: '40px',
-              backgroundColor: '#d1d5db',
-              borderRadius: '4px',
-              width: '100%'
-            }}></div>
-          </div>
-        ) : hasAccessToCourse ? (
+        {hasAccessToCourse ? (
           <button
             onClick={handleAccessCourse}
             style={{

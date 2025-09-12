@@ -13,14 +13,50 @@ export interface CreateProfileData {
 const profileExistsCache = new Map<string, boolean>();
 const profileCheckPromises = new Map<string, Promise<boolean>>();
 
+// Rate limiting to prevent spam
+const profileCheckRateLimit = new Map<string, number>();
+const PROFILE_CHECK_COOLDOWN = 5000; // 5 seconds
+
 // Function to clear cache (useful for testing or when user changes)
 export function clearProfileCache(userId?: string) {
   if (userId) {
     profileExistsCache.delete(userId);
     profileCheckPromises.delete(userId);
+    profileCheckRateLimit.delete(userId);
   } else {
     profileExistsCache.clear();
     profileCheckPromises.clear();
+    profileCheckRateLimit.clear();
+  }
+}
+
+// Manual function to create profile for verified users (useful for testing)
+export async function manuallyCreateProfile(userId: string): Promise<boolean> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user || user.id !== userId) {
+      console.error('User not found or ID mismatch');
+      return false;
+    }
+
+    const profileData: CreateProfileData = {
+      id: user.id,
+      email: user.email || '',
+      full_name: user.user_metadata?.full_name || user.email || 'User',
+      phone: user.user_metadata?.phone,
+      date_of_birth: user.user_metadata?.date_of_birth
+    };
+
+    const result = await createUserProfile(profileData);
+    if (result) {
+      // Clear cache to force refresh
+      clearProfileCache(userId);
+    }
+    return result;
+  } catch (error) {
+    console.error('Error manually creating profile:', error);
+    return false;
   }
 }
 
@@ -117,6 +153,15 @@ export async function createUserProfile(profileData: CreateProfileData): Promise
 
 export async function ensureProfileExists(userId: string): Promise<boolean> {
   try {
+    // Check rate limiting first
+    const now = Date.now();
+    const lastCheck = profileCheckRateLimit.get(userId) || 0;
+    
+    if (now - lastCheck < PROFILE_CHECK_COOLDOWN) {
+      console.log(`Profile check rate limited for user: ${userId} (${now - lastCheck}ms ago)`);
+      return profileExistsCache.get(userId) || false;
+    }
+
     // Check cache first
     if (profileExistsCache.has(userId)) {
       const exists = profileExistsCache.get(userId)!;
@@ -131,6 +176,9 @@ export async function ensureProfileExists(userId: string): Promise<boolean> {
       console.log('Profile check already in progress for user:', userId);
       return await profileCheckPromises.get(userId)!;
     }
+
+    // Update rate limit timestamp
+    profileCheckRateLimit.set(userId, now);
 
     // Create a new promise for this profile check
     const checkPromise = performProfileCheck(userId);
@@ -170,7 +218,7 @@ async function performProfileCheck(userId: string): Promise<boolean> {
       return true;
     }
 
-    console.log('Profile does not exist, creating...');
+    console.log('Profile does not exist, checking if user is verified...');
       
     // Get user data from auth
     const { data: { user } } = await supabase.auth.getUser();
@@ -179,6 +227,8 @@ async function performProfileCheck(userId: string): Promise<boolean> {
       console.error('User not found or ID mismatch');
       return false;
     }
+
+    console.log('Creating profile for user...');
 
     // Create basic profile from auth data
     const profileData: CreateProfileData = {
