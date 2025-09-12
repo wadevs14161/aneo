@@ -290,31 +290,41 @@ export async function hasAccess(userId: string, courseId: string): Promise<boole
 
 export async function getUserAccessibleCourses(userId: string): Promise<Course[]> {
   try {
-    // Get course IDs that user has access to
-    const { data: accessData, error: accessError } = await supabase
+    const startTime = performance.now();
+    
+    // Single optimized query with join to get both access and course data
+    const { data, error } = await supabase
       .from('course_access')
-      .select('course_id, expires_at')
-      .eq('user_id', userId);
+      .select(`
+        course_id,
+        expires_at,
+        access_type,
+        courses!inner (
+          id,
+          title,
+          description,
+          price,
+          thumbnail_url,
+          video_url,
+          instructor_name,
+          category,
+          is_published,
+          created_at
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('courses.is_published', true);
 
-    if (accessError) throw accessError;
+    if (error) throw error;
 
-    // Filter out expired access
-    const validCourseIds = accessData?.filter(access => {
+    // Filter out expired access and extract course data
+    const validCourses = data?.filter(access => {
       if (!access.expires_at) return true; // No expiration
       return new Date(access.expires_at) > new Date(); // Not expired
-    }).map(access => access.course_id);
+    }).map(access => access.courses as unknown as Course) || [];
 
-    if (!validCourseIds || validCourseIds.length === 0) return [];
-
-    // Get full course data for valid course IDs
-    const { data: courses, error: coursesError } = await supabase
-      .from('courses')
-      .select('*')
-      .in('id', validCourseIds)
-      .eq('is_published', true);
-
-    if (coursesError) throw coursesError;
-    return courses || [];
+    console.log(`Accessible courses loaded in: ${performance.now() - startTime}ms`);
+    return validCourses;
   } catch (error) {
     console.error('Error fetching accessible courses:', error);
     return [];

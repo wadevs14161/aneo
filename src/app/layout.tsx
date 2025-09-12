@@ -18,9 +18,7 @@ export const metadata: Metadata = {
 };
 
 import Navbar from "@/components/Navbar";
-import AuthProvider from "@/components/AuthProvider";
-import { CartProvider } from "@/contexts/CartContext";
-import { CourseAccessProvider } from "@/contexts/CourseAccessContext";
+import AppProvider from "@/components/AppProvider";
 // import DatabaseDebug from "@/components/DatabaseDebug"; // 🧪 Debug panel - uncomment when needed
 
 function Footer() {
@@ -42,16 +40,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
       >
-        <AuthProvider>
-          <CartProvider>
-            <CourseAccessProvider>
-              <Navbar />
-              <div style={{ flex: 1, width: "100%" }}>{children}</div>
-              <Footer />
-              {/* <DatabaseDebug /> */} {/* 🧪 Debug panel - uncomment when needed */}
-            </CourseAccessProvider>
-          </CartProvider>
-        </AuthProvider>
+        <AppProvider>
+          <Navbar />
+          <div style={{ flex: 1, width: "100%" }}>{children}</div>
+          <Footer />
+          {/* <DatabaseDebug /> */} {/* 🧪 Debug panel - uncomment when needed */}
+        </AppProvider>
       </body>
     </html>
   );

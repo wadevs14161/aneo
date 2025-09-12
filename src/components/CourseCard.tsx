@@ -85,22 +85,7 @@ export default function CourseCard({ course, onSeeMore }: CourseCardProps) {
           color: '#007bff' 
         }}>
           ${course.price}
-        </span>
-        
-        <button
-          onClick={handleSeeMore}
-          style={{
-            backgroundColor: '#28a745',
-            color: 'white',
-            border: 'none',
-            padding: '6px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          Preview
-        </button>
+        </span>        
       </div>
       
       {/* Add to Cart Button */}

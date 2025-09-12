@@ -5,6 +5,7 @@ import { Course } from '@/lib/database';
 import { useAuth } from '@/hooks/useAuth';
 import { useCourseAccessContext } from '@/contexts/CourseAccessContext';
 import AddToCartButton from './AddToCartButton';
+import CourseCardSkeleton from './CourseCardSkeleton';
 
 interface EnhancedCourseCardProps {
   course: Course;
@@ -15,6 +16,11 @@ export default function EnhancedCourseCard({ course, onSeeMore }: EnhancedCourse
   const router = useRouter();
   const { user } = useAuth();
   const { hasAccess, loading: courseAccessLoading } = useCourseAccessContext();
+
+  // Show skeleton during initial course access loading
+  if (courseAccessLoading && !course.id) {
+    return <CourseCardSkeleton />;
+  }
 
   const handleSeeMore = () => {
     if (onSeeMore) {
@@ -44,21 +50,33 @@ export default function EnhancedCourseCard({ course, onSeeMore }: EnhancedCourse
         <img
           src={course.thumbnail_url}
           alt={course.title}
+          onClick={handleSeeMore}
           style={{
             width: '100%',
             height: '120px',
             objectFit: 'contain',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'opacity 0.2s ease'
           }}
+          onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+          onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
         />
       </div>
       
-      <h3 style={{ 
-        fontSize: '15px', 
-        fontWeight: 'bold', 
-        marginBottom: '4px',
-        color: '#333'
-      }}>
+      <h3 
+        onClick={handleSeeMore}
+        style={{ 
+          fontSize: '15px', 
+          fontWeight: 'bold', 
+          marginBottom: '4px',
+          color: '#333',
+          cursor: 'pointer',
+          transition: 'color 0.2s ease'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.color = '#007bff'}
+        onMouseOut={(e) => e.currentTarget.style.color = '#333'}
+      >
         {course.title}
       </h3>
       
@@ -83,9 +101,6 @@ export default function EnhancedCourseCard({ course, onSeeMore }: EnhancedCourse
       </div>
       
       <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
         marginBottom: '8px'
       }}>
         <span style={{ 
@@ -95,21 +110,6 @@ export default function EnhancedCourseCard({ course, onSeeMore }: EnhancedCourse
         }}>
           ${course.price}
         </span>
-        
-        <button
-          onClick={handleSeeMore}
-          style={{
-            backgroundColor: '#28a745',
-            color: 'white',
-            border: 'none',
-            padding: '6px 12px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          Preview
-        </button>
       </div>
       
       {/* Enhanced Add to Cart / Access Course Button */}
