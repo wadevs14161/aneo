@@ -1,102 +1,58 @@
 export default function AboutPage() {
   return (
-    <div style={{
-      padding: '40px 20px',
-      backgroundColor: '#f8f9fa',
-      minHeight: '100vh'
-    }}>
-      <div style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{
-          fontSize: '36px',
-          fontWeight: 'bold',
-          marginBottom: '30px',
-          color: '#333',
-          textAlign: 'center'
-        }}>
-          About Aneo
-        </h1>
-        
-        <div style={{
-          fontSize: '16px',
-          lineHeight: '1.6',
-          color: '#555'
-        }}>
-          <p style={{ marginBottom: '20px' }}>
-            Welcome to Aneo, your premier destination for online learning and skill development. 
-            We believe that education should be accessible, engaging, and transformative for everyone.
-          </p>
-          
-          <p style={{ marginBottom: '20px' }}>
-            Our platform offers a diverse range of courses spanning from sports and fitness 
-            to lifestyle and entertainment skills. Whether you're looking to master tennis techniques, 
-            learn karaoke fundamentals, or train your beloved pet, we have expert instructors 
-            ready to guide you on your learning journey.
-          </p>
-          
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            marginTop: '30px',
-            marginBottom: '15px',
-            color: '#333'
-          }}>
-            Our Mission
-          </h2>
-          
-          <p style={{ marginBottom: '20px' }}>
-            To democratize learning by providing high-quality, affordable, and accessible 
-            online courses that empower individuals to pursue their passions and develop 
-            new skills at their own pace.
-          </p>
-          
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            marginTop: '30px',
-            marginBottom: '15px',
-            color: '#333'
-          }}>
-            Why Choose Aneo?
-          </h2>
-          
-          <ul style={{ marginBottom: '20px', paddingLeft: '20px' }}>
-            <li style={{ marginBottom: '10px' }}>Expert instructors with real-world experience</li>
-            <li style={{ marginBottom: '10px' }}>High-quality video content and materials</li>
-            <li style={{ marginBottom: '10px' }}>Learn at your own pace, anytime, anywhere</li>
-            <li style={{ marginBottom: '10px' }}>Affordable pricing with lifetime access</li>
-            <li style={{ marginBottom: '10px' }}>Comprehensive course categories</li>
-          </ul>
-          
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            marginTop: '30px',
-            marginBottom: '15px',
-            color: '#333'
-          }}>
-            Contact Us
-          </h2>
-          
-          <p style={{ marginBottom: '10px' }}>
-            Have questions or need support? We're here to help!
-          </p>
-          
-          <p style={{ marginBottom: '5px' }}>
-            <strong>Email:</strong> support@aneo.com
-          </p>
-          <p style={{ marginBottom: '5px' }}>
-            <strong>Phone:</strong> +1 (555) 123-4567
-          </p>
-          <p>
-            <strong>Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM EST
-          </p>
+    <div className="bg-gray-50 min-h-screen py-10 px-4">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md p-8">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">About AneoHub</h1>
+        <div className="text-base sm:text-lg text-gray-700 leading-relaxed space-y-6">
+          <section>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">Business Overview</h2>
+            <p>
+              <strong>AneoHub</strong> is a comprehensive online marketplace operated by <strong>AneoTrade Ltd</strong> (Company No. 16221118, VAT No. 4850898704, Registered Address: 52A Westerham Road, Sevenoaks, TN13 2PZ, United Kingdom).
+              We offer a wide variety of legitimate and compliant online courses and services to a global audience aged 15–65, including academic, professional, creative, lifestyle, and wellness learning opportunities.
+              Our platform hosts any course or service that complies with applicable laws, payment provider guidelines, and industry standards.
+            </p>
+            <ul className="list-disc ml-6 mb-4">
+              <li>Academic and test preparation</li>
+              <li>Professional skills and career development</li>
+              <li>Creative arts, music, and performance</li>
+              <li>Health, wellness, and fitness programs</li>
+              <li>Cooking and culinary arts</li>
+              <li>IT, programming, and digital skills</li>
+              <li>Finance and investment education</li>
+              <li>Lifestyle hobbies and personal enrichment</li>
+              <li>Science, engineering, and technology topics</li>
+              <li>Children’s and youth education programs</li>
+            </ul>
+          </section>
+          <section>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">Target Audience</h2>
+            <ul className="list-disc ml-6 mb-4">
+              <li>Primary Age Range: 15–65</li>
+              <li>Students seeking academic guidance or skill enhancement</li>
+              <li>Working professionals aiming to upgrade career skills or learn new hobbies</li>
+              <li>Parents purchasing courses for their children’s education</li>
+              <li>Hobbyists and lifelong learners interested in personal enrichment</li>
+            </ul>
+          </section>
+          <section>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">Service Delivery Model</h2>
+            <ul className="list-disc ml-6 mb-4">
+              <li>Fully online platform</li>
+              <li>Course formats: One-on-one coaching, small group classes, workshops, tutorial packages</li>
+              <li>Secure payment processing via major gateways</li>
+              <li>Live delivery via Zoom / Microsoft Teams</li>
+              <li>Pre-recorded content hosted on secure cloud storage</li>
+              <li>Integrated scheduling system for bookings</li>
+            </ul>
+          </section>
+          <section>
+            <h2 className="text-xl font-semibold mb-2 text-gray-800">Contact & Support</h2>
+            <ul className="list-disc ml-6 mb-4">
+              <li>Email, WeChat, Line, WhatsApp, Website Live Chat</li>
+              <li>Support Hours: 9 AM – 6 PM UK Time (Monday–Friday)</li>
+              <li>Languages: English, Mandarin</li>
+            </ul>
+          </section>
         </div>
       </div>
     </div>
