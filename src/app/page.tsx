@@ -2,6 +2,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from 'next/navigation';
 import CourseGrid from '@/components/CourseGrid';
+import ServiceFeatures from '@/components/ServiceFeatures';
 import { getAllCourses, Course } from '@/lib/database';
 
 function HomeContent() {
@@ -98,7 +99,14 @@ function HomeContent() {
             </div>
           </div>
         )}
-        <CourseGrid courses={courses} />
+        
+        {/* Service Features Section */}
+        <ServiceFeatures />
+        
+        {/* Course Grid Section */}
+        <div style={{ paddingTop: '20px' }}>
+          <CourseGrid courses={courses} />
+        </div>
       </div>
     </main>
   );
