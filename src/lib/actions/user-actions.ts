@@ -24,7 +24,7 @@ export interface CreateProfileData {
 /**
  * Clear profile cache for a specific user or all users
  */
-export function clearProfileCache(userId?: string) {
+export async function clearProfileCache(userId?: string) {
   if (userId) {
     profileExistsCache.delete(userId);
     profileCheckPromises.delete(userId);
@@ -298,7 +298,7 @@ export async function updateUserProfile(updates: Partial<Omit<Profile, 'id' | 'c
     }
 
     // Clear cache to force refresh
-    clearProfileCache(user.id);
+    await clearProfileCache(user.id);
 
     return { success: true, data: profile };
   } catch (error) {
@@ -348,7 +348,7 @@ export async function deleteUserProfile(userId: string): DatabaseActionResult {
     }
 
     // Clear cache
-    clearProfileCache(userId);
+    await clearProfileCache(userId);
 
     return { success: true };
   } catch (error) {
