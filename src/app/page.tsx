@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import CourseGrid from '@/components/CourseGrid';
 import ServiceFeatures from '@/components/ServiceFeatures';
 import EmailVerificationNotice from '@/components/EmailVerificationNotice';
-import DevProfileButton from '@/components/DevProfileButton';
+
 import { getAllCourses } from '@/lib/actions/course-actions';
 import { Course } from '@/lib/database/schema';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,6 +17,7 @@ function HomeContent() {
   const [error, setError] = useState<string | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [forceShowContent, setForceShowContent] = useState(false);
+  const [paymentProcessed, setPaymentProcessed] = useState(false);
   
   // Get auth and course access states
   const { loading: authLoading } = useAuth();
@@ -24,47 +25,53 @@ function HomeContent() {
   
   // Combined loading state - wait for all data to be ready
   const loading = coursesLoading || authLoading || courseAccessLoading;
-  
-  // Debug loading states
-  console.log('HomePage Loading States:', {
-    coursesLoading,
-    authLoading,
-    courseAccessLoading,
-    combined: loading
-  });
 
   useEffect(() => {
     loadCourses();
+  }, []); // Remove dependency on searchParams to prevent constant reloading
+
+  // Handle payment success - run only once per session
+  useEffect(() => {
+    const paymentSuccess = searchParams?.get('payment') === 'success';
+    const hasProcessedPayment = sessionStorage.getItem('paymentProcessed');
     
-    // Check for payment success
-    if (searchParams?.get('payment') === 'success') {
-      console.log('Payment success detected, refreshing course access...');
+    if (paymentSuccess && !hasProcessedPayment) {
+      console.log('Payment success detected, processing once...');
+      
+      // Mark as processed in session storage to prevent multiple executions
+      sessionStorage.setItem('paymentProcessed', 'true');
+      setPaymentProcessed(true);
       setShowSuccessMessage(true);
       
-      // Refresh course access data to show "Access Course" buttons immediately
+      // Clear URL parameter immediately
+      window.history.replaceState({}, '', '/');
+      
+      // Refresh course access once
       refreshCourseAccess();
       
-      // Also refresh after a short delay to ensure auth is ready
-      setTimeout(() => {
-        console.log('Payment success: Secondary refresh after delay');
-        refreshCourseAccess();
-      }, 2000);
-      
-      // Clear the URL parameter after 5 seconds
+      // Hide success message after 5 seconds
       setTimeout(() => {
         setShowSuccessMessage(false);
-        window.history.replaceState({}, '', '/');
       }, 5000);
+      
+      // Clear the session storage after 30 seconds to allow future payments
+      setTimeout(() => {
+        sessionStorage.removeItem('paymentProcessed');
+      }, 30000);
     }
-    
-    // Failsafe: If loading takes too long, force show content
+  }, [searchParams?.get('payment')]); // Remove other dependencies to prevent loops
+
+  // Separate timeout effect
+  useEffect(() => {
     const timeout = setTimeout(() => {
-      console.warn('Loading timeout reached, forcing content display');
-      setForceShowContent(true);
-    }, 10000); // 10 seconds timeout
+      if (loading) {
+        console.warn('Loading timeout reached, forcing content display');
+        setForceShowContent(true);
+      }
+    }, 10000);
     
     return () => clearTimeout(timeout);
-  }, [searchParams, refreshCourseAccess]);
+  }, [loading]);
 
   const loadCourses = async () => {
     try {
@@ -126,8 +133,7 @@ function HomeContent() {
         {/* Email Verification Notice */}
         <EmailVerificationNotice />
         
-        {/* Development Profile Creation (only shows in dev mode) */}
-        <DevProfileButton />
+
         
         {/* Payment Success Message */}
         {showSuccessMessage && (

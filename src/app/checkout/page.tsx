@@ -12,13 +12,6 @@ interface PaymentForm {
   expiryDate: string
   cvv: string
   cardholderName: string
-  billingAddress: {
-    street: string
-    city: string
-    county: string
-    postcode: string
-    country: string
-  }
 }
 
 export default function CheckoutPage() {
@@ -32,14 +25,7 @@ export default function CheckoutPage() {
     cardNumber: '',
     expiryDate: '',
     cvv: '',
-    cardholderName: '',
-    billingAddress: {
-      street: '',
-      city: '',
-      county: '',
-      postcode: '',
-      country: 'GB'
-    }
+    cardholderName: ''
   })
 
   // Show loading while checking auth
@@ -87,21 +73,10 @@ export default function CheckoutPage() {
   }
 
   const handleInputChange = (field: string, value: string) => {
-    if (field.startsWith('billing.')) {
-      const billingField = field.split('.')[1]
-      setPaymentForm(prev => ({
-        ...prev,
-        billingAddress: {
-          ...prev.billingAddress,
-          [billingField]: value
-        }
-      }))
-    } else {
-      setPaymentForm(prev => ({
-        ...prev,
-        [field]: value
-      }))
-    }
+    setPaymentForm(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   const formatCardNumber = (value: string) => {
@@ -138,10 +113,7 @@ export default function CheckoutPage() {
         throw new Error('Please fill in all required payment fields')
       }
 
-      if (!paymentForm.billingAddress.street || !paymentForm.billingAddress.city ||
-          !paymentForm.billingAddress.county || !paymentForm.billingAddress.postcode) {
-        throw new Error('Please fill in all billing address fields')
-      }
+
 
       // First create the order
       const orderResult = await createOrder(cart)
@@ -289,86 +261,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Billing Address */}
-                <div className="pt-4 border-t">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Billing Address</h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Street Address
-                      </label>
-                      <input
-                        type="text"
-                        value={paymentForm.billingAddress.street}
-                        onChange={(e) => handleInputChange('billing.street', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        placeholder="123 High Street"
-                      />
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          value={paymentForm.billingAddress.city}
-                          onChange={(e) => handleInputChange('billing.city', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="London"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          County
-                        </label>
-                        <input
-                          type="text"
-                          value={paymentForm.billingAddress.county}
-                          onChange={(e) => handleInputChange('billing.county', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="Greater London"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Postcode
-                        </label>
-                        <input
-                          type="text"
-                          value={paymentForm.billingAddress.postcode}
-                          onChange={(e) => handleInputChange('billing.postcode', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="SW1A 1AA"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Country
-                        </label>
-                        <select
-                          value={paymentForm.billingAddress.country}
-                          onChange={(e) => handleInputChange('billing.country', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        >
-                          <option value="GB">United Kingdom</option>
-                          <option value="IE">Ireland</option>
-                          <option value="US">United States</option>
-                          <option value="CA">Canada</option>
-                          <option value="AU">Australia</option>
-                          <option value="DE">Germany</option>
-                          <option value="FR">France</option>
-                          <option value="NL">Netherlands</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Payment Button */}
                 <div className="pt-6">

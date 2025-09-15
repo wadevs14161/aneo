@@ -2,6 +2,13 @@
 import { revalidatePath } from 'next/cache';
 import { getAuthenticatedUser, getSupabaseClient } from '@/lib/database/utils';
 import type { Order, OrderWithItems, CartItem, DatabaseActionResult } from '@/lib/database/schema';
+import { buildAbsoluteURL } from '@/lib/utils/url';
+import { 
+  createStripeCustomer, 
+  updateOrderWithStripeInfo,
+  updatePurchaseWithStripeInfo 
+} from './stripe-actions';
+import Stripe from 'stripe';
 
 /**
  * Create a new order from cart items
@@ -91,8 +98,75 @@ export async function processPayment(orderId: string): DatabaseActionResult<Orde
       return { success: false, error: 'Order already processed' };
     }
 
-    // Mock payment processing (always succeeds for now)
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate payment delay
+    // Create or get Stripe customer using dedicated action
+    console.log('🔄 Creating/getting Stripe customer for user:', user.id);
+    const customerResult = await createStripeCustomer(
+      user.id, 
+      user.email || '', 
+      user.user_metadata?.full_name
+    );
+
+    if (!customerResult.success || !customerResult.data) {
+      console.error('❌ Failed to create Stripe customer:', customerResult.error);
+      return { success: false, error: customerResult.error || 'Failed to create customer' };
+    }
+
+    const stripeCustomerId = customerResult.data.stripe_customer_id;
+    console.log('✅ Stripe customer ready:', stripeCustomerId);
+
+    // Initialize Stripe
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2025-08-27.basil',
+    });
+    
+    console.log('💳 Creating Stripe PaymentIntent...');
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(order.total_amount * 100), // Convert to cents
+      currency: order.currency || 'gbp',
+      customer: stripeCustomerId,
+      metadata: {
+        orderId: orderId,
+        userId: user.id
+      }
+    });
+    console.log('✅ PaymentIntent created:', paymentIntent.id);
+
+    // For now, we'll simulate successful payment
+    // In a real app, you'd return the client_secret to the frontend
+    // and use Stripe.js to confirm the payment
+    
+    // Simulate payment confirmation
+    const returnUrl = buildAbsoluteURL('/order/success');
+    
+    // Validate URL before sending to Stripe
+    if (!returnUrl.startsWith('http://') && !returnUrl.startsWith('https://')) {
+      console.error('Invalid return_url generated:', returnUrl);
+      throw new Error('Unable to generate valid return URL. Please check NEXT_PUBLIC_BASE_URL environment variable.');
+    }
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔗 Using return_url:', returnUrl);
+    }
+    
+    console.log('🔄 Confirming PaymentIntent...');
+    const confirmedPayment = await stripe.paymentIntents.confirm(paymentIntent.id, {
+      payment_method: 'pm_card_visa', // Test payment method
+      return_url: returnUrl
+    });
+    console.log('✅ PaymentIntent confirmed:', confirmedPayment.status);
+
+    // Update order with Stripe information using dedicated action
+    const orderUpdateResult = await updateOrderWithStripeInfo(
+      orderId,
+      paymentIntent.id,
+      stripeCustomerId,
+      confirmedPayment.latest_charge as string || undefined
+    );
+
+    if (!orderUpdateResult.success) {
+      console.error('❌ Failed to update order with Stripe info:', orderUpdateResult.error);
+      // Continue processing but log the error
+    }
 
     // Update order status
     const { error: updateError } = await supabase

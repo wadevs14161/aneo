@@ -75,10 +75,7 @@ export async function getUserCourses(userId: string): DatabaseActionResult<Cours
           thumbnail_url,
           video_url,
           instructor_name,
-          duration,
-          level,
           category,
-          is_active,
           created_at
         )
       `)

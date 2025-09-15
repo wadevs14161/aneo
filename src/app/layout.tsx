@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 import Navbar from "@/components/Navbar";
 import AppProvider from "@/components/AppProvider";
-// import DatabaseDebug from "@/components/DatabaseDebug"; // 🧪 Debug panel - uncomment when needed
+
 
 function Footer() {
   return (
@@ -52,7 +52,7 @@ export default function RootLayout({
           <Navbar />
           <div style={{ flex: 1, width: "100%" }}>{children}</div>
           <Footer />
-          {/* <DatabaseDebug /> */} {/* 🧪 Debug panel - uncomment when needed */}
+
         </AppProvider>
       </body>
     </html>
