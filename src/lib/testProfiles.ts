@@ -1,6 +1,6 @@
 // Simple test to verify profiles table setup
 import { supabase } from './supabaseClient';
-import { getCurrentUser } from './database';
+import { getCurrentUserProfile } from './actions/user-actions';
 
 export async function testProfilesTable() {
   try {
@@ -20,13 +20,15 @@ export async function testProfilesTable() {
     console.log('✅ Table exists and is accessible');
     
     // Test 2: Check if user is authenticated
-    const user = await getCurrentUser();
+    const userResult = await getCurrentUserProfile();
     
-    if (!user) {
+    if (!userResult.success || !userResult.data) {
       console.log('ℹ️ No authenticated user - skipping insert test');
       console.log('ℹ️ Table structure test passed - profiles table is ready');
       return true;
     }
+    
+    const user = userResult.data;
     
     console.log('👤 Authenticated user found:', user.email);
     

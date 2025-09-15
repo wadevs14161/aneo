@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/solid'
-import { getOrderDetails } from '@/lib/cart-actions'
+import { getOrderDetails } from '@/lib/actions/order-actions'
 
 interface OrderDetails {
   id: string

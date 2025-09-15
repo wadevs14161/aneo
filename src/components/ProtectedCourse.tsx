@@ -2,7 +2,8 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser, hasAccess } from '@/lib/database';
+import { getCurrentUserProfile } from '@/lib/actions/user-actions';
+import { hasAccess } from '@/lib/actions/course-actions';
 
 interface ProtectedCourseProps {
   courseId: string;
@@ -22,16 +23,16 @@ export default function ProtectedCourse({ courseId, children, fallback }: Protec
 
   const checkAccess = async () => {
     try {
-      const user = await getCurrentUser();
+      const userResult = await getCurrentUserProfile();
       
-      if (!user) {
+      if (!userResult.success || !userResult.data) {
         setIsAuthenticated(false);
         setLoading(false);
         return;
       }
 
       setIsAuthenticated(true);
-      const accessGranted = await hasAccess(user.id, courseId);
+      const accessGranted = await hasAccess(userResult.data.id, courseId);
       setHasAccessToContent(accessGranted);
     } catch (error) {
       console.error('Error checking access:', error);

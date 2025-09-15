@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Course } from '@/lib/database';
+import { Course } from '@/lib/database/schema';
 import AddToCartButton from './AddToCartButton';
 
 interface CourseCardProps {

@@ -5,7 +5,8 @@ import CourseGrid from '@/components/CourseGrid';
 import ServiceFeatures from '@/components/ServiceFeatures';
 import EmailVerificationNotice from '@/components/EmailVerificationNotice';
 import DevProfileButton from '@/components/DevProfileButton';
-import { getAllCourses, Course } from '@/lib/database';
+import { getAllCourses } from '@/lib/actions/course-actions';
+import { Course } from '@/lib/database/schema';
 import { useAuth } from '@/hooks/useAuth';
 import { useCourseAccessContext } from '@/contexts/CourseAccessContext';
 
@@ -71,9 +72,13 @@ function HomeContent() {
       setCoursesLoading(true);
       setError(null);
       
-      const coursesData = await getAllCourses();
-      console.log('HomePage: Courses loaded successfully:', coursesData.length, 'courses');
-      setCourses(coursesData);
+      const coursesResult = await getAllCourses();
+      if (coursesResult.success && coursesResult.data) {
+        console.log('HomePage: Courses loaded successfully:', coursesResult.data.length, 'courses');
+        setCourses(coursesResult.data);
+      } else {
+        throw new Error(coursesResult.error || 'Failed to load courses');
+      }
     } catch (err) {
       console.error('HomePage: Error loading courses:', err);
       setError('Failed to load courses');

@@ -1,13 +1,6 @@
-// Profile management utilities
-import { supabase } from './supabaseClient';
-
-export interface CreateProfileData {
-  id: string;
-  email: string;
-  full_name: string;
-  phone?: string;
-  date_of_birth?: string;
-}
+'use server'
+import { getSupabaseClient } from '@/lib/database/utils';
+import type { Profile, DatabaseActionResult } from '@/lib/database/schema';
 
 // Cache to prevent repeated profile existence checks
 const profileExistsCache = new Map<string, boolean>();
@@ -17,7 +10,20 @@ const profileCheckPromises = new Map<string, Promise<boolean>>();
 const profileCheckRateLimit = new Map<string, number>();
 const PROFILE_CHECK_COOLDOWN = 5000; // 5 seconds
 
-// Function to clear cache (useful for testing or when user changes)
+/**
+ * Interface for creating a new user profile
+ */
+export interface CreateProfileData {
+  id: string;
+  email: string;
+  full_name: string;
+  phone?: string;
+  date_of_birth?: string;
+}
+
+/**
+ * Clear profile cache for a specific user or all users
+ */
 export function clearProfileCache(userId?: string) {
   if (userId) {
     profileExistsCache.delete(userId);
@@ -30,51 +36,26 @@ export function clearProfileCache(userId?: string) {
   }
 }
 
-// Manual function to create profile for verified users (useful for testing)
-export async function manuallyCreateProfile(userId: string): Promise<boolean> {
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user || user.id !== userId) {
-      console.error('User not found or ID mismatch');
-      return false;
-    }
-
-    const profileData: CreateProfileData = {
-      id: user.id,
-      email: user.email || '',
-      full_name: user.user_metadata?.full_name || user.email || 'User',
-      phone: user.user_metadata?.phone,
-      date_of_birth: user.user_metadata?.date_of_birth
-    };
-
-    const result = await createUserProfile(profileData);
-    if (result) {
-      // Clear cache to force refresh
-      clearProfileCache(userId);
-    }
-    return result;
-  } catch (error) {
-    console.error('Error manually creating profile:', error);
-    return false;
-  }
-}
-
-export async function createUserProfile(profileData: CreateProfileData): Promise<boolean> {
+/**
+ * Create a user profile in the database
+ */
+export async function createUserProfile(profileData: CreateProfileData): DatabaseActionResult<Profile> {
   try {
     console.log('🔄 Checking/Creating profile for user:', profileData.id);
     console.log('📝 Profile data:', profileData);
     
+    const supabase = await getSupabaseClient();
+    
     // First check if profile already exists (database trigger might have created it)
     const { data: existingProfile, error: selectError } = await supabase
       .from('profiles')
-      .select('id, email, full_name, phone, date_of_birth')
+      .select('*')
       .eq('id', profileData.id)
       .single();
 
     if (selectError && selectError.code !== 'PGRST116') {
       console.error('❌ Error checking existing profile:', selectError.message);
-      return false;
+      return { success: false, error: selectError.message };
     }
 
     if (existingProfile) {
@@ -101,13 +82,14 @@ export async function createUserProfile(profileData: CreateProfileData): Promise
           
         if (updateError) {
           console.error('❌ Profile update error:', updateError);
-          return false;
+          return { success: false, error: updateError.message };
         }
         
         console.log('✅ Profile updated successfully:', updatedProfile);
+        return { success: true, data: updatedProfile };
       }
       
-      return true;
+      return { success: true, data: existingProfile };
     }
 
     // Profile doesn't exist, try to create it
@@ -137,20 +119,30 @@ export async function createUserProfile(profileData: CreateProfileData): Promise
       // Check if it's a duplicate error (race condition with trigger)
       if (error.code === '23505' || error.code === '42501') {
         console.log('✅ Profile likely created by trigger during race condition');
-        return true;
+        // Try to fetch the profile that was created by the trigger
+        const { data: createdProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', profileData.id)
+          .single();
+        return { success: true, data: createdProfile };
       }
       
-      return false;
+      return { success: false, error: error.message };
     }
 
     console.log('✅ Profile created successfully:', data);
-    return true;
+    return { success: true, data };
+    
   } catch (error) {
     console.error('❌ Unexpected profile creation error:', error);
-    return false;
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to create profile' };
   }
 }
 
+/**
+ * Ensure a user profile exists, creating one if necessary
+ */
 export async function ensureProfileExists(userId: string): Promise<boolean> {
   try {
     // Check rate limiting first
@@ -197,9 +189,14 @@ export async function ensureProfileExists(userId: string): Promise<boolean> {
   }
 }
 
+/**
+ * Internal function to perform profile existence check and creation
+ */
 async function performProfileCheck(userId: string): Promise<boolean> {
   try {
     console.log('Checking if profile exists for user:', userId);
+    
+    const supabase = await getSupabaseClient();
     
     // Check if profile already exists
     const { data: existingProfile, error: selectError } = await supabase
@@ -240,20 +237,146 @@ async function performProfileCheck(userId: string): Promise<boolean> {
     };
 
     console.log('Creating profile with data:', profileData);
-    return await createUserProfile(profileData);
+    const result = await createUserProfile(profileData);
+    return result.success;
   } catch (error) {
     console.error('Error in performProfileCheck:', error);
     return false;
   }
 }
 
-// Debug function to check database connection and table existence
+/**
+ * Get current user's profile
+ */
+export async function getCurrentUserProfile(): DatabaseActionResult<Profile> {
+  try {
+    const supabase = await getSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: profile };
+  } catch (error) {
+    console.error('Error getting current user profile:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to get profile' };
+  }
+}
+
+/**
+ * Update user profile
+ */
+export async function updateUserProfile(updates: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>): DatabaseActionResult<Profile> {
+  try {
+    const supabase = await getSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { success: false, error: 'User not authenticated' };
+    }
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', user.id)
+      .select()
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Clear cache to force refresh
+    clearProfileCache(user.id);
+
+    return { success: true, data: profile };
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to update profile' };
+  }
+}
+
+/**
+ * Get user profile by ID (admin function)
+ */
+export async function getUserProfileById(userId: string): DatabaseActionResult<Profile> {
+  try {
+    const supabase = await getSupabaseClient();
+    
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: profile };
+  } catch (error) {
+    console.error('Error getting user profile by ID:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to get profile' };
+  }
+}
+
+/**
+ * Delete user profile (admin function)
+ */
+export async function deleteUserProfile(userId: string): DatabaseActionResult {
+  try {
+    const supabase = await getSupabaseClient();
+    
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Clear cache
+    clearProfileCache(userId);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting user profile:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to delete profile' };
+  }
+}
+
+/**
+ * Get current authenticated user
+ */
+export async function getCurrentUser() {
+  const supabase = await getSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+}
+
+/**
+ * Check database setup and table existence
+ */
 export async function checkDatabaseSetup(): Promise<{ 
   connected: boolean; 
   profilesTableExists: boolean; 
   error?: string 
 }> {
   try {
+    const supabase = await getSupabaseClient();
+    
     // Try to query the profiles table
     const { data, error } = await supabase
       .from('profiles')

@@ -1,6 +1,7 @@
 'use client'
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { CartItem, getCartItems, addToCart as addToCartAction, removeFromCart as removeFromCartAction } from '@/lib/cart-actions';
+import { getCartItems, addToCart as addToCartAction, removeFromCart as removeFromCartAction } from '@/lib/actions/cart-actions';
+import { CartItem } from '@/lib/database/schema';
 import { useAuth } from '@/hooks/useAuth';
 
 interface CartState {
@@ -87,8 +88,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const refreshCart = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const items = await getCartItems();
-      dispatch({ type: 'SET_ITEMS', payload: items });
+      const result = await getCartItems();
+      if (result.success && result.data) {
+        dispatch({ type: 'SET_ITEMS', payload: result.data });
+      } else {
+        console.error('Error fetching cart items:', result.error);
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
     } catch (error) {
       console.error('Error refreshing cart:', error);
       dispatch({ type: 'SET_LOADING', payload: false });

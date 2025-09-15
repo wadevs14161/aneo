@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useCart } from '@/contexts/CartContext'
 import { useAuth } from '@/hooks/useAuth'
-import { createOrder, processPayment } from '@/lib/cart-actions'
+import { createOrder, processPayment } from '@/lib/actions/order-actions'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
@@ -15,8 +15,8 @@ interface PaymentForm {
   billingAddress: {
     street: string
     city: string
-    state: string
-    zipCode: string
+    county: string
+    postcode: string
     country: string
   }
 }
@@ -36,9 +36,9 @@ export default function CheckoutPage() {
     billingAddress: {
       street: '',
       city: '',
-      state: '',
-      zipCode: '',
-      country: 'US'
+      county: '',
+      postcode: '',
+      country: 'GB'
     }
   })
 
@@ -139,7 +139,7 @@ export default function CheckoutPage() {
       }
 
       if (!paymentForm.billingAddress.street || !paymentForm.billingAddress.city ||
-          !paymentForm.billingAddress.state || !paymentForm.billingAddress.zipCode) {
+          !paymentForm.billingAddress.county || !paymentForm.billingAddress.postcode) {
         throw new Error('Please fill in all billing address fields')
       }
 
@@ -303,7 +303,7 @@ export default function CheckoutPage() {
                         value={paymentForm.billingAddress.street}
                         onChange={(e) => handleInputChange('billing.street', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                        placeholder="123 Main Street"
+                        placeholder="123 High Street"
                       />
                     </div>
 
@@ -317,19 +317,19 @@ export default function CheckoutPage() {
                           value={paymentForm.billingAddress.city}
                           onChange={(e) => handleInputChange('billing.city', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="New York"
+                          placeholder="London"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          State
+                          County
                         </label>
                         <input
                           type="text"
-                          value={paymentForm.billingAddress.state}
-                          onChange={(e) => handleInputChange('billing.state', e.target.value)}
+                          value={paymentForm.billingAddress.county}
+                          onChange={(e) => handleInputChange('billing.county', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="NY"
+                          placeholder="Greater London"
                         />
                       </div>
                     </div>
@@ -337,14 +337,14 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          ZIP Code
+                          Postcode
                         </label>
                         <input
                           type="text"
-                          value={paymentForm.billingAddress.zipCode}
-                          onChange={(e) => handleInputChange('billing.zipCode', e.target.value)}
+                          value={paymentForm.billingAddress.postcode}
+                          onChange={(e) => handleInputChange('billing.postcode', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                          placeholder="10001"
+                          placeholder="SW1A 1AA"
                         />
                       </div>
                       <div>
@@ -356,10 +356,14 @@ export default function CheckoutPage() {
                           onChange={(e) => handleInputChange('billing.country', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                         >
+                          <option value="GB">United Kingdom</option>
+                          <option value="IE">Ireland</option>
                           <option value="US">United States</option>
                           <option value="CA">Canada</option>
-                          <option value="UK">United Kingdom</option>
                           <option value="AU">Australia</option>
+                          <option value="DE">Germany</option>
+                          <option value="FR">France</option>
+                          <option value="NL">Netherlands</option>
                         </select>
                       </div>
                     </div>

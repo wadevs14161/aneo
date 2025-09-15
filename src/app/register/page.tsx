@@ -2,7 +2,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { createUserProfile } from "@/lib/profileUtils";
+import { createUserProfile } from "@/lib/actions/user-actions";
 
 interface RegisterFormData {
   email: string;
@@ -97,7 +97,7 @@ function RegisterForm() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Verify/ensure profile exists (database trigger should have created it)
-        const profileSuccess = await createUserProfile({
+        const profileResult = await createUserProfile({
           id: data.user.id,
           email: formData.email,
           full_name: formData.fullName,
@@ -105,7 +105,7 @@ function RegisterForm() {
           date_of_birth: formData.dateOfBirth || undefined
         });
         
-        if (profileSuccess) {
+        if (profileResult.success) {
           console.log('✅ Profile verification/creation completed');
           
           // Proceed with registration success and redirect to home page

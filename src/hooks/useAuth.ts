@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
-import { getCurrentUserProfile, Profile } from '@/lib/database';
-import { ensureProfileExists } from '@/lib/profileUtils';
+import { getCurrentUserProfile, ensureProfileExists } from '@/lib/actions/user-actions';
+import { Profile } from '@/lib/database/schema';
 
 interface AuthState {
   user: User | null;
@@ -64,10 +64,10 @@ export function useAuth() {
             return;
           }
           
-          const profile = await getCurrentUserProfile();
+          const profileResult = await getCurrentUserProfile();
           setAuthState({
             user: session.user,
-            profile,
+            profile: profileResult.success && profileResult.data ? profileResult.data : null,
             loading: false
           });
         } else {
@@ -109,11 +109,11 @@ export function useAuth() {
           console.log('Profile check rate limited, skipping');
         }
         
-        const profile = await getCurrentUserProfile();
+        const profileResult = await getCurrentUserProfile();
         
         const newAuthState = {
           user: session.user,
-          profile,
+          profile: profileResult.success && profileResult.data ? profileResult.data : null,
           loading: false
         };
         

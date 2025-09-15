@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react';
-import { getUserAccessibleCourses } from '@/lib/database';
+import { getUserCourses } from '@/lib/actions/course-actions';
 import { useAuth } from './useAuth';
 
 export function useCourseAccess() {
@@ -27,9 +27,13 @@ export function useCourseAccess() {
 
     try {
       console.log('useCourseAccess - Loading courses for user:', user.id);
-      const courses = await getUserAccessibleCourses(user.id);
-      console.log('useCourseAccess - Loaded courses:', courses.length);
-      setAccessibleCourseIds(courses.map(course => course.id));
+      const coursesResult = await getUserCourses(user.id);
+      if (coursesResult.success && coursesResult.data) {
+        console.log('useCourseAccess - Loaded courses:', coursesResult.data.length);
+        setAccessibleCourseIds(coursesResult.data.map(course => course.id));
+      } else {
+        throw new Error(coursesResult.error || 'Failed to load accessible courses');
+      }
     } catch (error) {
       console.error('useCourseAccess - Error loading accessible courses:', error);
       setAccessibleCourseIds([]);

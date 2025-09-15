@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/hooks/useAuth'
-import { addToCart } from '@/lib/cart-actions'
+import { addToCart } from '@/lib/actions/cart-actions'
 import { useState } from 'react'
 
 export default function AuthTestComponent() {

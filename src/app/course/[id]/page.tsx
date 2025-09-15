@@ -3,7 +3,8 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import VideoPlayer from '@/components/VideoPlayer';
 import ProtectedCourse from '@/components/ProtectedCourse';
-import { getCourse, type Course } from '@/lib/database';
+import { getCourse } from '@/lib/actions/course-actions';
+import { type Course } from '@/lib/database/schema';
 
 export default function CoursePage() {
   const params = useParams();
@@ -22,14 +23,14 @@ export default function CoursePage() {
       setLoading(true);
       setError(null);
       
-      const courseData = await getCourse(courseId);
+      const courseResult = await getCourse(courseId);
       
-      if (!courseData) {
-        setError('Course not found');
+      if (!courseResult.success || !courseResult.data) {
+        setError(courseResult.error || 'Course not found');
         return;
       }
       
-      setCourse(courseData);
+      setCourse(courseResult.data);
     } catch (err) {
       console.error('Error loading course:', err);
       setError('Failed to load course');
@@ -80,7 +81,7 @@ export default function CoursePage() {
     <div className="py-5 bg-gray-50 min-h-screen">
       <ProtectedCourse courseId={courseId}>
         <VideoPlayer
-          videoUrl={course.video_url}
+          videoUrl={course.video_url || ''}
           title={course.title}
           description={course.description}
           instructor={course.instructor_name}

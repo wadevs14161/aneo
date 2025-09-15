@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import EnhancedCourseCard from './EnhancedCourseCard';
-import { Course } from '@/lib/database';
+import { Course } from '@/lib/database/schema';
 
 interface CourseGridProps {
   courses: Course[];

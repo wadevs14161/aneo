@@ -1,8 +1,8 @@
 // Debug component to test database connection and profile creation
 'use client'
 import { useState } from 'react';
-import { checkDatabaseSetup, ensureProfileExists } from '@/lib/profileUtils';
-import { getCurrentUser } from '@/lib/database';
+import { checkDatabaseSetup, ensureProfileExists } from '@/lib/actions/user-actions';
+import { getCurrentUser } from '@/lib/actions/user-actions';
 import { testProfilesTable } from '@/lib/testProfiles';
 
 export default function DatabaseDebug() {

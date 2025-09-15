@@ -1,7 +1,7 @@
 'use client'
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Course } from '@/lib/database';
+import { Course } from '@/lib/database/schema';
 import { useAuth } from '@/hooks/useAuth';
 import { useCourseAccessContext } from '@/contexts/CourseAccessContext';
 import AddToCartButton from './AddToCartButton';
