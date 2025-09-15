@@ -8,12 +8,12 @@ import { useRouter } from 'next/navigation';
 import CartIcon from './CartIcon';
 
 export default function Navbar() {
-  const { user, profile, loading, signOut, isAuthenticated } = useAuth();
+  const { user, loading, logout, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
     router.push('/');
   };
 
@@ -61,9 +61,9 @@ export default function Navbar() {
             ) : isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 <CartIcon />
-                {profile?.full_name && (
+                {user?.email && (
                   <span className="text-gray-700 text-sm font-medium hidden lg:block">
-                    Hi, {profile.full_name}
+                    Hi, {user.email.split('@')[0]}
                   </span>
                 )}
                 <button
@@ -138,9 +138,9 @@ export default function Navbar() {
                 <div className="px-3 py-2 text-gray-600 text-base">Loading...</div>
               ) : isAuthenticated ? (
                 <div className="px-3 py-2 space-y-2">
-                  {profile?.full_name && (
+                  {user?.email && (
                     <div className="text-gray-700 text-sm font-medium">
-                      Hi, {profile.full_name}
+                      Hi, {user.email.split('@')[0]}
                     </div>
                   )}
                   <div className="flex items-center space-x-2">
