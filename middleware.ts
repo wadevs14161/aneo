@@ -54,7 +54,27 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh the auth session
+  // Check for admin routes protection
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return NextResponse.redirect(new URL('/login?redirect=/admin', request.url))
+    }
+
+    // Check if user has admin role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+      return NextResponse.redirect(new URL('/unauthorized', request.url))
+    }
+  }
+
+  // Refresh the auth session for all other routes
   await supabase.auth.getUser()
 
   return response
@@ -67,8 +87,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - API routes (handled separately)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/.*|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

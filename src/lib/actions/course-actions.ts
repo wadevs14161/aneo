@@ -104,7 +104,7 @@ export async function getAllCourses(): DatabaseActionResult<Course[]> {
     const { data: courses, error } = await supabase
       .from('courses')
       .select('*')
-      .eq('is_published', true)
+      .eq('is_active', true)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -130,7 +130,7 @@ export async function getCourse(courseId: string): DatabaseActionResult<Course> 
       .from('courses')
       .select('*')
       .eq('id', courseId)
-      .eq('is_published', true)
+      .eq('is_active', true)
       .single();
 
     if (error || !course) {
