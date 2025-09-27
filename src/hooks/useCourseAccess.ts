@@ -44,11 +44,21 @@ export function useCourseAccess() {
   }, [user]);
 
   useEffect(() => {
+    // Safety timeout for course access loading
+    const loadingTimeout = setTimeout(() => {
+      console.warn('Course access loading timeout reached, forcing loading to false');
+      setLoading(false);
+    }, 3000);
+
     if (authLoading) {
-      return; // Wait for auth to finish loading
+      return () => clearTimeout(loadingTimeout); // Wait for auth to finish loading
     }
     
-    loadAccessibleCourses();
+    loadAccessibleCourses().finally(() => {
+      clearTimeout(loadingTimeout);
+    });
+
+    return () => clearTimeout(loadingTimeout);
   }, [authLoading, loadAccessibleCourses]);
 
   const hasAccess = useCallback((courseId: string) => {

@@ -33,7 +33,9 @@ export default function Navbar() {
                 alt="Aneo Logo" 
                 width={120} 
                 height={40} 
-                className="cursor-pointer" 
+                priority
+                className="cursor-pointer"
+                style={{ width: 'auto', height: '40px' }}
               />
             </Link>
           </div>

@@ -18,6 +18,12 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Safety timeout to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      console.warn('Auth loading timeout reached, forcing loading to false');
+      setLoading(false);
+    }, 5000);
+
     // Get initial session and profile
     const initializeAuth = async () => {
       try {
@@ -32,6 +38,7 @@ export function useAuth() {
         setUser(null);
         setProfile(null);
       } finally {
+        clearTimeout(loadingTimeout);
         setLoading(false);
       }
     };

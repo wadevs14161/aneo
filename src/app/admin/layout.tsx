@@ -4,12 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import AdminProtection from '@/components/AdminProtection'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: '📊', current: false },
   { name: 'Course Management', href: '/admin/courses', icon: '🎓', current: false },
   { name: 'Purchase Management', href: '/admin/purchases', icon: '💳', current: false },
   { name: 'User Management', href: '/admin/users', icon: '👥', current: false },
+  { name: 'Configuration', href: '/admin/configuration', icon: '⚙️', current: false },
 ]
 
 function classNames(...classes: string[]) {
@@ -31,7 +33,8 @@ export default function AdminLayout({
   }))
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminProtection>
+      <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-40 lg:hidden ${sidebarOpen ? '' : 'hidden'}`}>
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
@@ -153,6 +156,7 @@ export default function AdminLayout({
                 {pathname?.startsWith('/admin/courses') && 'Course Management'}
                 {pathname?.startsWith('/admin/purchases') && 'Purchase Management'}
                 {pathname?.startsWith('/admin/users') && 'User Management'}
+                {pathname?.startsWith('/admin/configuration') && 'Configuration'}
               </h1>
             </div>
             
@@ -177,5 +181,6 @@ export default function AdminLayout({
         </main>
       </div>
     </div>
+    </AdminProtection>
   )
 }

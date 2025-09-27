@@ -261,6 +261,56 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Admin Tools */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Admin Tools</h3>
+          <p className="mt-1 text-sm text-gray-600">Quick access to administrative functions</p>
+        </div>
+        <div className="px-6 py-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Link
+              href="/admin/configuration"
+              className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 hover:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="text-2xl">⚙️</div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900">Configuration</p>
+                  <p className="text-sm text-gray-500">Manage environment variables and app settings</p>
+                </div>
+              </div>
+            </Link>
+            
+            <div className="relative rounded-lg border border-gray-200 bg-gray-50 px-6 py-5 opacity-50">
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="text-2xl">📊</div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-500">Analytics</p>
+                  <p className="text-sm text-gray-400">Coming Soon</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="relative rounded-lg border border-gray-200 bg-gray-50 px-6 py-5 opacity-50">
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="text-2xl">🔧</div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-500">System Tools</p>
+                  <p className="text-sm text-gray-400">Coming Soon</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Recent Activity */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Orders */}
