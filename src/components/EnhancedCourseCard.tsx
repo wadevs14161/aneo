@@ -2,7 +2,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Course } from '@/lib/database/schema';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth';
 import { useCourseAccessContext } from '@/contexts/CourseAccessContext';
 import AddToCartButton from './AddToCartButton';
 

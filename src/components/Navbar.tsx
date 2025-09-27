@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from "next/link";
 import Image from "next/image";
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import CartIcon from './CartIcon';
 
@@ -78,12 +78,12 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center space-x-3">
                 <Link href="/login">
-                  <button className="px-3 py-2 text-blue-600 border border-blue-600 hover:bg-blue-50 text-sm font-medium rounded-md transition-colors duration-200">
+                  <button className="px-3 py-2 text-blue-600 border border-blue-600 hover:bg-blue-50 text-sm font-medium rounded-md transition-colors duration-200 hover: cursor-pointer">
                     Login
                   </button>
                 </Link>
                 <Link href="/register">
-                  <button className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                  <button className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200 hover: cursor-pointer">
                     Sign Up
                   </button>
                 </Link>

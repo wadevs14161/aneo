@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import AuthProvider from '@/components/AuthProvider';
+import { AuthProvider } from '@/lib/auth';
 import { CartProvider } from '@/contexts/CartContext';
 import { CourseAccessProvider } from '@/contexts/CourseAccessContext';
 

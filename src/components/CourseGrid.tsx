@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import EnhancedCourseCard from './EnhancedCourseCard';
+import ConsultingServiceCard from './ConsultingServiceCard';
 import { Course } from '@/lib/database/schema';
 
 interface CourseGridProps {
@@ -73,13 +74,26 @@ export default function CourseGrid({ courses, onSeeMore }: CourseGridProps) {
       
       {/* Responsive course grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-        {filteredAndSortedCourses.map((course) => (
-          <EnhancedCourseCard
-            key={course.id}
-            course={course}
-            onSeeMore={onSeeMore}
-          />
-        ))}
+        {filteredAndSortedCourses.map((course) => {
+          // Use ConsultingServiceCard for the consulting service course
+          if (course.id === '55555555-5555-5555-5555-555555555555') {
+            return (
+              <ConsultingServiceCard
+                key={course.id}
+                course={course}
+              />
+            );
+          }
+          
+          // Use regular EnhancedCourseCard for other courses
+          return (
+            <EnhancedCourseCard
+              key={course.id}
+              course={course}
+              onSeeMore={onSeeMore}
+            />
+          );
+        })}
       </div>
     </div>
   );

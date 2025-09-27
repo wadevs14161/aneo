@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react';
 import { getUserCourses } from '@/lib/actions/course-actions';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/lib/auth';
 
 export function useCourseAccess() {
   const { user, loading: authLoading } = useAuth();

@@ -76,7 +76,7 @@ export default function ServiceFeatures() {
           {features.map((feature, index) => (
             <div
               key={feature.id}
-              className="rounded-2xl p-6 sm:p-8 lg:p-10 text-center text-white shadow-xl hover:shadow-2xl cursor-pointer relative overflow-hidden flex flex-col justify-center items-center min-h-[280px] sm:min-h-[320px] transform transition-all duration-300 hover:-translate-y-2"
+              className="rounded-2xl p-6 sm:p-8 lg:p-10 text-center text-white shadow-xl hover:shadow-2xl relative overflow-hidden flex flex-col justify-center items-center min-h-[280px] sm:min-h-[320px] transform transition-all duration-300 hover:-translate-y-2"
               style={{
                 background: gradients[index]
               }}

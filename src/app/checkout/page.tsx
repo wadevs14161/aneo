@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useCart } from '@/contexts/CartContext'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/lib/auth'
 import { createOrder, processPayment } from '@/lib/actions/order-actions'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'

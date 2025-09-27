@@ -1,6 +1,6 @@
 'use client'
 import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth';
 import Link from 'next/link';
 
 export default function CartIcon() {

@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
-import AdminProtection from '@/components/AdminProtection'
+import { useAuth, RequireAdmin } from '@/lib/auth'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: '📊', current: false },
@@ -33,7 +32,7 @@ export default function AdminLayout({
   }))
 
   return (
-    <AdminProtection>
+    <RequireAdmin>
       <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-40 lg:hidden ${sidebarOpen ? '' : 'hidden'}`}>
@@ -181,6 +180,6 @@ export default function AdminLayout({
         </main>
       </div>
     </div>
-    </AdminProtection>
+    </RequireAdmin>
   )
 }

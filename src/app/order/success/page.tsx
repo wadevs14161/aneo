@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/lib/auth'
 import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/solid'
 import { getOrderDetails } from '@/lib/actions/order-actions'
 

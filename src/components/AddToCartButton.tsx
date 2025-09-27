@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth';
 
 interface AddToCartButtonProps {
   courseId: string;

@@ -7,7 +7,7 @@ import EmailVerificationNotice from '@/components/EmailVerificationNotice';
 
 import { getAllCourses } from '@/lib/actions/course-actions';
 import { Course } from '@/lib/database/schema';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth';
 import { useCourseAccessContext } from '@/contexts/CourseAccessContext';
 
 function HomeContent() {

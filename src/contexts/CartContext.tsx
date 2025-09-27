@@ -2,7 +2,7 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { getCartItems, addToCart as addToCartAction, removeFromCart as removeFromCartAction } from '@/lib/actions/cart-actions';
 import { CartItem } from '@/lib/database/schema';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/auth';
 
 interface CartState {
   items: CartItem[];
