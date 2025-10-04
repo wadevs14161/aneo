@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabaseClient'
 import Link from 'next/link'
+import FileUpload from '@/components/FileUpload'
 
 interface CourseFormData {
   title: string
@@ -176,41 +177,69 @@ export default function NewCourse() {
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Media</h3>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Thumbnail Upload */}
               <div>
-                <label htmlFor="thumbnail_url" className="block text-sm font-medium text-gray-700 mb-1">
-                  Thumbnail URL
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Course Thumbnail
                 </label>
-                <input
-                  type="url"
-                  id="thumbnail_url"
-                  name="thumbnail_url"
-                  value={formData.thumbnail_url}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://example.com/thumbnail.jpg"
+                <FileUpload
+                  fileType="thumbnail"
+                  currentUrl={formData.thumbnail_url}
+                  onUploadComplete={(url) => setFormData(prev => ({ ...prev, thumbnail_url: url }))}
+                  className="mb-2"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-gray-500">
                   Recommended size: 1280x720 pixels (16:9 aspect ratio)
-                </p>
+                </div>
+                
+                {/* Manual URL Input as Fallback */}
+                <div className="mt-3">
+                  <label htmlFor="thumbnail_url" className="block text-xs font-medium text-gray-600 mb-1">
+                    Or enter thumbnail URL manually:
+                  </label>
+                  <input
+                    type="url"
+                    id="thumbnail_url"
+                    name="thumbnail_url"
+                    value={formData.thumbnail_url}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://example.com/thumbnail.jpg"
+                  />
+                </div>
               </div>
 
+              {/* Video Upload */}
               <div>
-                <label htmlFor="video_url" className="block text-sm font-medium text-gray-700 mb-1">
-                  Video URL
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Course Video
                 </label>
-                <input
-                  type="url"
-                  id="video_url"
-                  name="video_url"
-                  value={formData.video_url}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://example.com/video.mp4"
+                <FileUpload
+                  fileType="video"
+                  currentUrl={formData.video_url}
+                  onUploadComplete={(url) => setFormData(prev => ({ ...prev, video_url: url }))}
+                  className="mb-2"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  You can add more videos after creating the course
-                </p>
+                <div className="text-xs text-gray-500">
+                  Upload your main course video. You can add more videos after creating the course.
+                </div>
+                
+                {/* Manual URL Input as Fallback */}
+                <div className="mt-3">
+                  <label htmlFor="video_url" className="block text-xs font-medium text-gray-600 mb-1">
+                    Or enter video URL manually:
+                  </label>
+                  <input
+                    type="url"
+                    id="video_url"
+                    name="video_url"
+                    value={formData.video_url}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://example.com/video.mp4"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -251,18 +280,6 @@ export default function NewCourse() {
             </button>
           </div>
         </form>
-      </div>
-
-      {/* Tips */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-blue-900 mb-2">💡 Tips for creating great courses:</h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Write a clear, descriptive title that explains what students will learn</li>
-          <li>• Use a compelling description that highlights key benefits and outcomes</li>
-          <li>• Choose an eye-catching thumbnail that represents your course content</li>
-          <li>• Price competitively based on the value and length of your content</li>
-          <li>• Start with one main video, then add more content in the video management section</li>
-        </ul>
       </div>
     </div>
   )

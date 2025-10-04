@@ -40,6 +40,19 @@ export interface AuthState {
   refresh: () => Promise<void>;
 }
 
+// Global auth state to prevent unnecessary re-initialization
+let globalAuthState: {
+  initialized: boolean;
+  user: User | null;
+  profile: Profile | null;
+  loading: boolean;
+} = {
+  initialized: false,
+  user: null,
+  profile: null,
+  loading: true
+};
+
 // ========================================
 // Context
 // ========================================
@@ -67,24 +80,32 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(globalAuthState.user);
+  const [profile, setProfile] = useState<Profile | null>(globalAuthState.profile);
+  const [loading, setLoading] = useState<boolean>(globalAuthState.loading);
 
-  // Initialize authentication
+  // Initialize authentication only once globally
   useEffect(() => {
+    // If already initialized, use the global state
+    if (globalAuthState.initialized) {
+      setUser(globalAuthState.user);
+      setProfile(globalAuthState.profile);
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
-    let isInitializing = true;
 
     const initializeAuth = async () => {
       try {
-        console.log('AuthProvider: Initializing auth...');
+        console.log('AuthProvider: First-time initialization...');
         
         // Get current session
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Error getting session:', error);
+          globalAuthState = { initialized: true, user: null, profile: null, loading: false };
           if (mounted) {
             setUser(null);
             setProfile(null);
@@ -93,53 +114,68 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return;
         }
 
+        const newUser = session?.user ?? null;
+        let newProfile = null;
+        
+        if (newUser) {
+          newProfile = await fetchProfile(newUser.id);
+        }
+
+        // Update global state
+        globalAuthState = {
+          initialized: true,
+          user: newUser,
+          profile: newProfile,
+          loading: false
+        };
+
         if (mounted) {
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchProfile(session.user.id);
-          } else {
-            setProfile(null);
-          }
-          
+          setUser(newUser);
+          setProfile(newProfile);
           setLoading(false);
-          isInitializing = false;
-          console.log('AuthProvider: Initialization complete');
+          console.log('AuthProvider: First-time initialization complete');
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
+        globalAuthState = { initialized: true, user: null, profile: null, loading: false };
         if (mounted) {
           setUser(null);
           setProfile(null);
           setLoading(false);
-          isInitializing = false;
         }
       }
     };
 
     initializeAuth();
 
-    // Listen for auth changes
+    // Listen for auth changes (only real authentication events)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, 'isInitializing:', isInitializing);
+        if (!mounted) return;
         
-        if (!mounted || isInitializing) return;
+        console.log('Auth state changed:', event);
+        
+        // Only handle actual sign in/out events, ignore token refreshes and initial events
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+          const newUser = session?.user ?? null;
+          let newProfile = null;
+          
+          if (newUser && event === 'SIGNED_IN') {
+            newProfile = await fetchProfile(newUser.id);
+          }
 
-        // Temporarily set loading during profile fetch for existing users
-        if (session?.user && !user) {
-          setLoading(true);
-        }
+          // Update global state
+          globalAuthState = {
+            initialized: true,
+            user: newUser,
+            profile: newProfile,
+            loading: false
+          };
 
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
+          // Update component state
+          setUser(newUser);
+          setProfile(newProfile);
         }
-        
-        setLoading(false);
       }
     );
 
@@ -150,14 +186,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []); // No dependencies to prevent re-initialization
 
   // Fetch user profile
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
-      // Skip if we already have a profile for this user
-      if (profile && profile.id === userId) {
-        console.log('AuthProvider: Profile already cached for user', userId);
-        return;
-      }
-
       console.log('AuthProvider: Fetching profile for user', userId);
       
       const { data, error } = await supabase
@@ -168,15 +198,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         console.error('Error fetching profile:', error);
-        setProfile(null);
-        return;
+        return null;
       }
 
       console.log('AuthProvider: Profile fetched successfully', data.role);
-      setProfile(data);
+      return data;
     } catch (error) {
       console.error('Error in fetchProfile:', error);
-      setProfile(null);
+      return null;
     }
   };
 
@@ -188,6 +217,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (error) {
         console.error('Logout error:', error);
       }
+      
+      // Update global state
+      globalAuthState = {
+        initialized: true,
+        user: null,
+        profile: null,
+        loading: false
+      };
+      
+      // Update component state
+      setUser(null);
+      setProfile(null);
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -286,10 +327,20 @@ export function RequireAdmin({ children, fallback, redirectTo = '/unauthorized' 
   const { isAdmin, isAuthenticated, loading, user, profile } = useAuth();
   const router = useRouter();
   const [hasRedirected, setHasRedirected] = useState(false);
+  const [isStable, setIsStable] = useState(false);
+
+  // Debounce auth state to prevent rapid re-renders
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsStable(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [loading, isAuthenticated, isAdmin]);
 
   useEffect(() => {
     // Only redirect once per mount and only when auth state is stable
-    if (!loading && !hasRedirected) {
+    if (!loading && isStable && !hasRedirected) {
       if (!isAuthenticated) {
         console.log('RequireAdmin: User not authenticated, redirecting to login');
         setHasRedirected(true);
@@ -302,15 +353,27 @@ export function RequireAdmin({ children, fallback, redirectTo = '/unauthorized' 
         router.push(redirectTo);
       }
     }
-  }, [loading, isAuthenticated, isAdmin, hasRedirected]); // Removed router and redirectTo from deps
+  }, [loading, isAuthenticated, isAdmin, hasRedirected, isStable, router, redirectTo]);
 
   // Reset redirect flag when user changes (for proper re-evaluation)
   useEffect(() => {
     setHasRedirected(false);
+    setIsStable(false);
   }, [user?.id]);
 
+  // Handle visibility change to prevent unnecessary re-auth when switching apps
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // Silently preserve auth state when app becomes visible
+      // No need to log this as it's expected behavior
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   // Show loading while auth is initializing
-  if (loading) {
+  if (loading || !isStable) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
